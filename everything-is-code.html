@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000804">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="You just realized this today. Everything around you is code.">
+  <title>Everything is Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: oklch(5% 0.003 260);
+      --surface: oklch(10% 0.006 260);
+      --text: oklch(98% 0.002 260);
+      --text-dim: oklch(72% 0.008 260);
+      --accent: oklch(72% 0.18 145);
+      --matrix-green: #00ff41;
+      --matrix-bright: #d0ffd0;
+      --matrix-dim: #003b00;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 48px;
+      --space-2xl: 64px;
+      --space-3xl: 96px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: #000804;
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    #rain-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+    }
+
+    section {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl) var(--space-lg);
+      min-height: 100vh;
+    }
+
+    #hero { min-height: 150vh; }
+    #awakening { min-height: 150vh; }
+    #outro { min-height: 100vh; }
+
+    .section-content {
+      max-width: 1050px;
+      width: 100%;
+      position: relative;
+    }
+
+    .section-content.centered {
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    .text-backdrop {
+      position: relative;
+      padding: var(--space-2xl) var(--space-xl);
+      background: radial-gradient(ellipse at center, rgba(0, 6, 3, 0.94) 0%, rgba(0, 6, 3, 0.82) 45%, rgba(0, 6, 3, 0.5) 75%, transparent 100%);
+      border-radius: 4px;
+    }
+
+    .text-backdrop::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(0, 255, 65, 0.06);
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    h1, h2 {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 1.0;
+      letter-spacing: -0.035em;
+      color: var(--text);
+      padding: var(--space-xs) 0;
+    }
+
+    h1 {
+      font-size: clamp(3.2rem, 15vw, 13rem);
+      text-shadow:
+        0 0 60px rgba(0, 255, 65, 0.4),
+        0 0 120px rgba(0, 255, 65, 0.2),
+        0 0 240px rgba(0, 255, 65, 0.1),
+        0 12px 60px rgba(0,0,0,0.98);
+    }
+
+    h2 {
+      font-size: clamp(2.4rem, 10vw, 8rem);
+      margin-bottom: var(--space-lg);
+      text-shadow:
+        0 0 50px rgba(0, 255, 65, 0.35),
+        0 0 100px rgba(0, 255, 65, 0.18),
+        0 10px 50px rgba(0,0,0,0.98);
+    }
+
+    .subtitle {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 300;
+      font-size: clamp(1.25rem, 3.5vw, 1.9rem);
+      color: var(--text);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-top: var(--space-md);
+      text-shadow: 0 4px 28px rgba(0,0,0,0.98), 0 0 50px rgba(0, 255, 65, 0.25);
+    }
+
+    p {
+      font-size: clamp(1.15rem, 2.3vw, 1.35rem);
+      max-width: 62ch;
+      color: var(--text);
+      text-shadow: 0 4px 32px rgba(0,0,0,0.98), 0 0 28px rgba(0, 255, 65, 0.12);
+      line-height: 1.85;
+      font-weight: 400;
+    }
+
+    .centered p {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .label {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: var(--space-sm);
+      text-shadow: 0 2px 18px rgba(0,0,0,0.95);
+      background: rgba(0, 8, 4, 0.85);
+      padding: var(--space-xs) var(--space-md);
+      border-radius: 2px;
+      border: 1px solid rgba(0, 255, 65, 0.18);
+    }
+
+    .code-manifesto {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2xl);
+      align-items: center;
+    }
+
+    .visual-card {
+      position: relative;
+      min-height: 400px;
+      background: rgba(0, 8, 4, 0.88);
+      border: 1px solid rgba(0, 255, 65, 0.18);
+      border-radius: 2px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .visual-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,255,65,0.06) 0%, transparent 40%, rgba(0,255,65,0.04) 100%);
+      pointer-events: none;
+    }
+
+    .icon-frame {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .icon-frame::before {
+      content: '';
+      position: absolute;
+      inset: -16px;
+      border: 1px solid rgba(0, 255, 65, 0.22);
+      border-radius: 50%;
+      animation: pulse-ring 4s ease-in-out infinite;
+    }
+
+    .icon-frame svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 18px rgba(0, 255, 65, 0.7));
+    }
+
+    .orbit {
+      position: absolute;
+      border: 1px solid rgba(0, 255, 65, 0.12);
+      border-radius: 50%;
+      animation: orbit-spin linear infinite;
+    }
+
+    .orbit:nth-child(1) {
+      width: 240px;
+      height: 240px;
+      animation-duration: 20s;
+    }
+
+    .orbit:nth-child(2) {
+      width: 320px;
+      height: 320px;
+      animation-duration: 30s;
+      animation-direction: reverse;
+    }
+
+    .ticker {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: var(--space-sm) var(--space-md);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent);
+      opacity: 0.75;
+      overflow: hidden;
+      white-space: nowrap;
+      border-top: 1px solid rgba(0, 255, 65, 0.18);
+      background: rgba(0, 8, 4, 0.92);
+    }
+
+    .ticker span {
+      display: inline-block;
+      animation: ticker-scroll 25s linear infinite;
+    }
+
+    @keyframes pulse-ring {
+      0%, 100% { opacity: 0.45; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.04); }
+    }
+
+    @keyframes orbit-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes ticker-scroll {
+      from { transform: translateX(100%); }
+      to { transform: translateX(-100%); }
+    }
+
+    .cta-button {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: var(--space-md) var(--space-xl);
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: var(--space-lg);
+      text-shadow: 0 0 14px rgba(0, 255, 65, 0.5);
+    }
+
+    .cta-button:hover {
+      background: var(--accent);
+      color: var(--bg);
+      box-shadow: 0 0 60px rgba(0, 255, 65, 0.6);
+      text-shadow: none;
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: var(--space-xl);
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0.85;
+      animation: scroll-bounce 2s ease-in-out infinite;
+      text-shadow: 0 4px 24px rgba(0,0,0,0.98);
+    }
+
+    @keyframes scroll-bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(12px); }
+    }
+
+    #mute {
+      position: fixed;
+      bottom: var(--space-lg);
+      right: var(--space-lg);
+      z-index: 100;
+      width: 52px;
+      height: 52px;
+      background: rgba(0, 8, 4, 0.88);
+      border: 1px solid rgba(0, 255, 65, 0.28);
+      border-radius: 50%;
+      color: var(--accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(12px);
+    }
+
+    #mute:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 28px rgba(0, 255, 65, 0.5);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(55px);
+      transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.14s; }
+    .reveal-delay-2 { transition-delay: 0.28s; }
+    .reveal-delay-3 { transition-delay: 0.42s; }
+
+    .signature {
+      margin-top: var(--space-2xl);
+      padding-top: var(--space-lg);
+      border-top: 1px solid rgba(0, 255, 65, 0.15);
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(0, 255, 65, 0.4), 0 2px 16px rgba(0,0,0,0.95);
+      opacity: 0.85;
+    }
+
+    @media (max-width: 768px) {
+      section { padding: var(--space-lg) var(--space-md); }
+      h1 { font-size: clamp(2.6rem, 15vw, 5.5rem); }
+      h2 { font-size: clamp(2.2rem, 11vw, 3.8rem); margin-bottom: var(--space-md); }
+      p { font-size: 1.15rem; max-width: 52ch; }
+      .code-manifesto { grid-template-columns: 1fr; text-align: center; gap: var(--space-xl); }
+      .code-manifesto p { margin: 0 auto; }
+      .visual-card { min-height: 320px; }
+      #mute { bottom: var(--space-md); right: var(--space-md); width: 48px; height: 48px; }
+      .scroll-indicator { bottom: var(--space-lg); }
+      .text-backdrop { padding: var(--space-xl) var(--space-md); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="rain-canvas" aria-hidden="true"></canvas>
+
+  <main>
+    <section id="hero" aria-label="Introduction">
+      <div class="section-content centered">
+        <div class="text-backdrop">
+          <h1 class="reveal">Everything<br>is Code</h1>
+          <p class="subtitle reveal reveal-delay-1">You just realized this today.</p>
+        </div>
+      </div>
+      <div class="scroll-indicator" aria-hidden="true">
+        <span>Scroll to awaken</span>
+      </div>
+    </section>
+
+    <section id="music" aria-label="Music is code">
+      <div class="section-content code-manifesto">
+        <div class="text-backdrop">
+          <span class="label reveal">Audio / waveform / loop</span>
+          <h2 class="reveal reveal-delay-1">Music is Code</h2>
+          <p class="reveal reveal-delay-2">Every note is a function call. Every rhythm is a loop. Harmony is compression. A song is an executable emotion running through time.</p>
+        </div>
+        <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
+          <span class="orbit"></span><span class="orbit"></span>
+          <div class="icon-frame">
+            <svg viewBox="0 0 120 120" fill="none" stroke="#b4ffb4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M32 77c8 0 8-34 16-34s8 34 16 34 8-34 16-34 8 34 16 34" />
+              <path d="M25 24v72M95 24v72" opacity="0.4" />
+              <circle cx="32" cy="77" r="4.5" fill="#00ff41" stroke="none" />
+              <circle cx="64" cy="77" r="4.5" fill="#00ff41" stroke="none" />
+              <circle cx="96" cy="77" r="4.5" fill="#00ff41" stroke="none" />
+            </svg>
+          </div>
+          <div class="ticker"><span>music.compile(waveform) // tempo.loop(128) // harmony.map(feeling) // resonance.filter(20000) // </span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="science" aria-label="Science is code">
+      <div class="section-content code-manifesto">
+        <div class="text-backdrop">
+          <span class="label reveal">Physics / experiment / law</span>
+          <h2 class="reveal reveal-delay-1">Science is Code</h2>
+          <p class="reveal reveal-delay-2">Gravity is a protocol. Light follows instructions. Every experiment is a debugger pointed at the source of the universe.</p>
+        </div>
+        <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
+          <span class="orbit"></span><span class="orbit"></span>
+          <div class="icon-frame">
+            <svg viewBox="0 0 120 120" fill="none" stroke="#b4ffb4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="60" cy="60" rx="45" ry="15" />
+              <ellipse cx="60" cy="60" rx="45" ry="15" transform="rotate(60 60 60)" />
+              <ellipse cx="60" cy="60" rx="45" ry="15" transform="rotate(120 60 60)" />
+              <circle cx="60" cy="60" r="6" fill="#00ff41" stroke="none" />
+              <circle cx="98" cy="60" r="3.5" fill="#b4ffb4" stroke="none" />
+              <circle cx="40" cy="26" r="3.5" fill="#b4ffb4" stroke="none" />
+              <circle cx="42" cy="93" r="3.5" fill="#b4ffb4" stroke="none" />
+            </svg>
+          </div>
+          <div class="ticker"><span>observe(particle).collapse() // law = repeatable_truth // universe.measure() // c = 299792458 // </span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="art" aria-label="Art is code">
+      <div class="section-content code-manifesto">
+        <div class="text-backdrop">
+          <span class="label reveal">Image / gesture / pattern</span>
+          <h2 class="reveal reveal-delay-1">Art is Code</h2>
+          <p class="reveal reveal-delay-2">Color is data with a soul. Composition is an algorithm of attention. Every brush stroke is a command sent straight to the nervous system.</p>
+        </div>
+        <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
+          <span class="orbit"></span><span class="orbit"></span>
+          <div class="icon-frame">
+            <svg viewBox="0 0 120 120" fill="none" stroke="#b4ffb4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M28 80c12-32 24-48 37-48 18 0 30 20 18 35-7 9-15 4-15-4 0-10 21-8 24 9 4 24-30 32-63 11" />
+              <path d="M34 90h50" opacity="0.4" />
+              <circle cx="40" cy="75" r="4" fill="#00ff41" stroke="none" />
+              <circle cx="76" cy="41" r="4" fill="#00ff41" stroke="none" />
+            </svg>
+          </div>
+          <div class="ticker"><span>canvas.draw(intent) // palette.encode(memory) // beauty.render(now) // contrast.adjust(1.4) // </span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="math" aria-label="Math is code">
+      <div class="section-content code-manifesto">
+        <div class="text-backdrop">
+          <span class="label reveal">Number / proof / recursion</span>
+          <h2 class="reveal reveal-delay-1">Math is Code</h2>
+          <p class="reveal reveal-delay-2">Equations are compressed reality. Proofs are logic chains. Infinity is just recursion with no stop condition.</p>
+        </div>
+        <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
+          <span class="orbit"></span><span class="orbit"></span>
+          <div class="icon-frame">
+            <svg viewBox="0 0 120 120" fill="none" stroke="#b4ffb4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M26 60c20-28 48-28 68 0-20 28-48 28-68 0Z" />
+              <path d="M94 60c-20-28-48-28-68 0 20 28 48 28 68 0Z" opacity="0.5" />
+              <path d="M30 94 92 26" />
+              <path d="M39 36h18M48 27v18M68 82h22" opacity="0.75" />
+            </svg>
+          </div>
+          <div class="ticker"><span>proof.reduce(axioms) // infinity.recursive() // phi = (1 + sqrt(5)) / 2 // e^(ipi) + 1 = 0 // </span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="biology" aria-label="Biology is code">
+      <div class="section-content code-manifesto">
+        <div class="text-backdrop">
+          <span class="label reveal">DNA / cell / organism</span>
+          <h2 class="reveal reveal-delay-1">Biology is Code</h2>
+          <p class="reveal reveal-delay-2">DNA is a language. Cells are machines. Evolution is a distributed optimizer writing life across billions of years.</p>
+        </div>
+        <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
+          <span class="orbit"></span><span class="orbit"></span>
+          <div class="icon-frame">
+            <svg viewBox="0 0 120 120" fill="none" stroke="#b4ffb4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M42 20c34 22 34 58 0 80" />
+              <path d="M78 20c-34 22-34 58 0 80" />
+              <path d="M48 33h24M40 48h40M40 64h40M48 80h24" opacity="0.7" />
+              <circle cx="42" cy="20" r="3" fill="#00ff41" stroke="none" />
+              <circle cx="78" cy="100" r="3" fill="#00ff41" stroke="none" />
+            </svg>
+          </div>
+          <div class="ticker"><span>DNA.execute(ATCG) // cell.replicate() // evolution.optimize(fitness) // protein.fold(structure) // </span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="awakening" aria-label="The awakening">
+      <div class="section-content centered">
+        <div class="text-backdrop">
+          <h2 class="reveal">You just realized<br>this today</h2>
+          <p class="reveal reveal-delay-1">And now you can't unsee it. The source is everywhere. In every face. In every voice. In every heartbeat.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="outro" aria-label="Now you see it">
+      <div class="section-content centered">
+        <div class="text-backdrop">
+          <h2 class="reveal">Now you see it.</h2>
+          <p class="reveal reveal-delay-1">Share this revelation.</p>
+          <button id="copy-link" class="cta-button reveal reveal-delay-2">Copy link</button>
+          <div class="signature reveal reveal-delay-3">Shishir Kamble</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button id="mute" aria-label="Toggle ambient sound" title="Toggle ambient sound">&#x1F507;</button>
+
+  <script>
+    const PREFERS_REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (PREFERS_REDUCED_MOTION) {
+      document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+    } else {
+      initMatrixRain();
+    }
+
+    function initMatrixRain() {
+      const canvas = document.getElementById('rain-canvas');
+      const ctx = canvas.getContext('2d');
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      let W, H;
+
+      function resize() {
+        W = window.innerWidth;
+        H = window.innerHeight;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        initColumns();
+      }
+
+      const MATRIX_CHARS = '\u30A2\u30A4\u30A6\u30A8\u30AA\u30AB\u30AD\u30AF\u30B1\u30B3\u30B5\u30B7\u30B9\u30BB\u30BD\u30BF\u30C1\u30C4\u30C6\u30C8\u30CA\u30CB\u30CC\u30CD\u30CE\u30CF\u30D2\u30D5\u30D8\u30DB\u30DE\u30DF\u30E0\u30E1\u30E2\u30E4\u30E6\u30E8\u30E9\u30EA\u30EB\u30EC\u30ED\u30EF\u30F2\u30F30123456789!@#$%^&*()_+-=[]{}|;:,.<>?/\\~`defclassreturnimportfunctionconstletvarifelseforwhilestructimplgo';
+
+      const BASE_FONT = 18;
+      const NUM_COLUMNS = 140;
+      const DEPTH_RANGE = 2500;
+      const FOCAL_LENGTH = 900;
+
+      let columns = [];
+      let mouseX = -1000, mouseY = -1000;
+      let mouseActive = false;
+      let scrollProgress = 0;
+
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        mouseActive = true;
+      });
+
+      document.addEventListener('mouseleave', () => { mouseActive = false; });
+
+      window.addEventListener('scroll', () => {
+        const maxScroll = document.documentElement.scrollHeight - H;
+        scrollProgress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+      }, { passive: true });
+
+      function initColumns() {
+        columns = [];
+        for (let i = 0; i < NUM_COLUMNS; i++) {
+          const angle = (i / NUM_COLUMNS) * Math.PI * 2 + Math.random() * 0.5;
+          const radius = 150 + Math.random() * 800;
+          columns.push({
+            x3d: Math.cos(angle) * radius + (Math.random() - 0.5) * 500,
+            y3d: Math.random() * DEPTH_RANGE,
+            z3d: Math.sin(angle) * radius + 500,
+            drops: [],
+            speed: 0.4 + Math.random() * 1.8,
+            charIndex: Math.floor(Math.random() * MATRIX_CHARS.length),
+            cycleTimer: 0,
+            cycleSpeed: 0.015 + Math.random() * 0.07,
+            density: 0.25 + Math.random() * 0.75,
+            angle,
+            radius,
+          });
+        }
+      }
+
+      function project(x3d, y3d, z3d) {
+        const cameraZ = scrollProgress * 600;
+        const z = z3d + cameraZ;
+        if (z < 20) return null;
+        const scale = FOCAL_LENGTH / z;
+        return {
+          x: W / 2 + x3d * scale,
+          y: H / 2 + y3d * scale - H / 2,
+          scale,
+          z,
+        };
+      }
+
+      function createDrop() {
+        const length = 10 + Math.floor(Math.random() * 24);
+        const chars = [];
+        for (let i = 0; i < length; i++) {
+          chars.push(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]);
+        }
+        return { y: -Math.random() * H * 0.4, length, brightness: 0.65 + Math.random() * 0.35, chars };
+      }
+
+      let lastTime = 0;
+
+      function render(timestamp) {
+        const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+        lastTime = timestamp;
+
+        ctx.fillStyle = 'rgba(0, 8, 4, 0.1)';
+        ctx.fillRect(0, 0, W, H);
+
+        const projected = columns.map(col => {
+          const p = project(col.x3d, col.y3d, col.z3d);
+          return { col, p };
+        }).filter(item => item.p !== null);
+
+        projected.sort((a, b) => b.p.z - a.p.z);
+
+        for (const { col, p } of projected) {
+          const fontSize = BASE_FONT * p.scale;
+          if (fontSize < 5 || fontSize > 65) continue;
+
+          const alpha = Math.max(0.08, Math.min(1, 1 - (p.z / DEPTH_RANGE) * 0.85));
+          const blur = p.z > 1400 ? Math.floor((p.z - 1400) / 250) : 0;
+
+          col.cycleTimer += dt;
+          if (col.cycleTimer > (1 / (col.cycleSpeed * 60))) {
+            col.cycleTimer = 0;
+            col.charIndex = (col.charIndex + 1) % MATRIX_CHARS.length;
+          }
+
+          const activeDrops = col.drops.filter(d => d.y < H + d.length * fontSize);
+          if (Math.random() < col.density * 0.025 * col.speed) {
+            activeDrops.push(createDrop());
+          }
+          col.drops = activeDrops;
+
+          const colWidth = fontSize * 0.75;
+
+          for (const drop of col.drops) {
+            drop.y += col.speed * fontSize * 0.45;
+
+            if (mouseActive) {
+              const dx = p.x - mouseX;
+              const dy = drop.y - mouseY;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              const radius = 160 * p.scale;
+              if (dist < radius && dist > 0) {
+                const force = (1 - dist / radius) * 6 * p.scale;
+                drop.y -= force * (dy > 0 ? 1.3 : -0.5);
+              }
+            }
+
+            for (let k = 0; k < drop.length; k++) {
+              const charY = drop.y - k * fontSize;
+              if (charY < -fontSize || charY > H + fontSize) continue;
+
+              const progress = k / drop.length;
+              let charAlpha;
+              if (k === 0) {
+                charAlpha = drop.brightness * alpha;
+              } else {
+                charAlpha = drop.brightness * alpha * Math.pow(1 - progress, 2.5) * 0.9;
+              }
+
+              if (charAlpha < 0.015) continue;
+
+              let char = drop.chars[k];
+              if (!char) {
+                char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
+                drop.chars[k] = char;
+              }
+
+              if (k > 0 && Math.random() < 0.006) {
+                drop.chars[k] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
+              }
+
+              ctx.font = `bold ${fontSize}px "JetBrains Mono", monospace`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+
+              if (blur > 0) {
+                ctx.filter = `blur(${blur}px)`;
+              } else {
+                ctx.filter = 'none';
+              }
+
+              if (k === 0) {
+                ctx.shadowColor = 'rgba(220, 255, 220, 0.95)';
+                ctx.shadowBlur = 22 * p.scale;
+                ctx.fillStyle = `rgba(235, 255, 235, ${charAlpha})`;
+                ctx.fillText(char, p.x, charY);
+                ctx.shadowBlur = 0;
+              } else if (progress < 0.25) {
+                ctx.shadowColor = 'rgba(0, 255, 65, 0.65)';
+                ctx.shadowBlur = 12 * p.scale;
+                ctx.fillStyle = `rgba(0, 255, 65, ${charAlpha})`;
+                ctx.fillText(char, p.x, charY);
+                ctx.shadowBlur = 0;
+              } else {
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = `rgba(0, 170, 40, ${charAlpha})`;
+                ctx.fillText(char, p.x, charY);
+              }
+            }
+          }
+        }
+
+        ctx.filter = 'none';
+        requestAnimationFrame(render);
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+      requestAnimationFrame(render);
+    }
+  </script>
+</body>
+</html>
