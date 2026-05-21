@@ -61,7 +61,7 @@
 
     main {
       position: relative;
-      z-index: 2;
+      z-index: 10;
     }
 
     section {
@@ -91,17 +91,10 @@
     .text-backdrop {
       position: relative;
       padding: var(--space-2xl) var(--space-xl);
-      background: radial-gradient(ellipse at center, rgba(0, 6, 3, 0.75) 0%, rgba(0, 6, 3, 0.6) 45%, rgba(0, 6, 3, 0.4) 75%, transparent 100%);
+      background: rgba(0, 6, 3, 0.7);
+      backdrop-filter: blur(8px);
       border-radius: 4px;
-    }
-
-    .text-backdrop::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border: 1px solid rgba(0, 255, 65, 0.06);
-      border-radius: 4px;
-      pointer-events: none;
+      z-index: 11;
     }
 
     h1, h2 {
@@ -110,43 +103,37 @@
       text-transform: uppercase;
       line-height: 1.0;
       letter-spacing: -0.035em;
-      color: var(--text);
+      color: #ffffff;
       padding: var(--space-xs) 0;
     }
 
     h1 {
       font-size: clamp(3.2rem, 15vw, 13rem);
-      text-shadow:
-        0 0 60px rgba(0, 255, 65, 0.5),
-        0 0 120px rgba(0, 255, 65, 0.25),
-        0 10px 50px rgba(0,0,0,0.98);
+      text-shadow: 0 0 40px rgba(0,255,65,0.6), 0 0 80px rgba(0,255,65,0.3), 0 4px 20px rgba(0,0,0,1);
     }
 
     h2 {
       font-size: clamp(2.4rem, 10vw, 8rem);
       margin-bottom: var(--space-lg);
-      text-shadow:
-        0 0 60px rgba(0, 255, 65, 0.5),
-        0 0 120px rgba(0, 255, 65, 0.25),
-        0 10px 50px rgba(0,0,0,0.98);
+      text-shadow: 0 0 30px rgba(0,255,65,0.5), 0 0 60px rgba(0,255,65,0.25), 0 4px 16px rgba(0,0,0,1);
     }
 
     .subtitle {
       font-family: 'Manrope', sans-serif;
       font-weight: 300;
       font-size: clamp(1.25rem, 3.5vw, 1.9rem);
-      color: oklch(95% 0.002 260);
+      color: #e0e0e0;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       margin-top: var(--space-md);
-      text-shadow: 0 0 60px rgba(0, 255, 65, 0.5), 0 0 120px rgba(0, 255, 65, 0.25), 0 10px 50px rgba(0,0,0,0.98);
+      text-shadow: 0 0 30px rgba(0,255,65,0.5), 0 0 60px rgba(0,255,65,0.25), 0 4px 16px rgba(0,0,0,1);
     }
 
     p {
       font-size: clamp(1.15rem, 2.3vw, 1.35rem);
       max-width: 62ch;
-      color: oklch(95% 0.002 260);
-      text-shadow: 0 0 40px rgba(0, 255, 65, 0.35), 0 0 80px rgba(0, 255, 65, 0.18), 0 8px 40px rgba(0,0,0,0.98);
+      color: #d0d0d0;
+      text-shadow: 0 2px 8px rgba(0,0,0,1);
       line-height: 1.85;
       font-weight: 400;
     }
@@ -163,7 +150,7 @@
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: #00ff41;
       margin-bottom: var(--space-sm);
       text-shadow: 0 2px 18px rgba(0,0,0,0.95);
       background: rgba(0, 12, 6, 0.95);
@@ -589,9 +576,9 @@
       const MATRIX_CHARS = '\u30A2\u30A4\u30A6\u30A8\u30AA\u30AB\u30AD\u30AF\u30B1\u30B3\u30B5\u30B7\u30B9\u30BB\u30BD\u30BF\u30C1\u30C4\u30C6\u30C8\u30CA\u30CB\u30CC\u30CD\u30CE\u30CF\u30D2\u30D5\u30D8\u30DB\u30DE\u30DF\u30E0\u30E1\u30E2\u30E4\u30E6\u30E8\u30E9\u30EA\u30EB\u30EC\u30ED\u30EF\u30F2\u30F30123456789!@#$%^&*()_+-=[]{}|;:,.<>?/\\~`defclassreturnimportfunctionconstletvarifelseforwhilestructimplgo';
 
       const BASE_FONT = 18;
-      const NUM_COLUMNS = 100;
-      const DEPTH_RANGE = 3000;
-      const FOCAL_LENGTH = 1000;
+      const NUM_COLUMNS = 60;
+      const DEPTH_RANGE = 2000;
+      const FOCAL_LENGTH = 800;
 
       let columns = [];
       let mouseX = -1000, mouseY = -1000;
@@ -677,6 +664,10 @@
 
       function render(timestamp) {
         const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+        if (dt < 0.014) {
+          requestAnimationFrame(render);
+          return;
+        }
         lastTime = timestamp;
 
         updateParams();
@@ -696,7 +687,6 @@
           if (fontSize < 5 || fontSize > 65) continue;
 
           const alpha = Math.max(0.08, Math.min(1, 1 - (p.z / DEPTH_RANGE) * 0.85));
-          const blur = p.z > 1400 ? Math.floor((p.z - 1400) / 250) : 0;
 
           col.cycleTimer += dt;
           if (col.cycleTimer > (1 / (col.cycleSpeed * 60))) {
@@ -705,6 +695,7 @@
           }
 
           const activeDrops = col.drops.filter(d => d.y < H + d.length * fontSize);
+          if (activeDrops.length > 8) activeDrops.shift();
           if (Math.random() < col.density * 0.025 * col.speed) {
             activeDrops.push(createDrop());
           }
@@ -712,10 +703,12 @@
 
           const colWidth = fontSize * 0.75;
 
+          let dropIndex = 0;
           for (const drop of col.drops) {
+            dropIndex++;
             drop.y += col.speed * fontSize * 0.35 * Math.min(dt * 60, 2) * currentSpeed;
 
-            if (mouseActive) {
+            if (mouseActive && dropIndex % 3 === 0) {
               const dx = p.x - mouseX;
               const dy = drop.y - mouseY;
               const dist = Math.sqrt(dx * dx + dy * dy);
@@ -754,34 +747,20 @@
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
 
-              if (blur > 0) {
-                ctx.filter = `blur(${blur}px)`;
-              } else {
-                ctx.filter = 'none';
-              }
-
               if (k === 0) {
                 ctx.shadowColor = 'rgba(220, 255, 220, 0.95)';
-                ctx.shadowBlur = 22 * p.scale;
+                ctx.shadowBlur = 15 * p.scale;
                 ctx.fillStyle = `rgba(235, 255, 235, ${charAlpha})`;
                 ctx.fillText(char, p.x, charY);
                 ctx.shadowBlur = 0;
-              } else if (progress < 0.25) {
-                ctx.shadowColor = 'rgba(0, 255, 65, 0.65)';
-                ctx.shadowBlur = 12 * p.scale;
-                ctx.fillStyle = `rgba(0, 255, 65, ${charAlpha})`;
-                ctx.fillText(char, p.x, charY);
-                ctx.shadowBlur = 0;
               } else {
                 ctx.shadowBlur = 0;
-                ctx.fillStyle = `rgba(0, 170, 40, ${charAlpha})`;
+                ctx.fillStyle = `rgba(0, ${170 - progress * 80}, 40, ${charAlpha})`;
                 ctx.fillText(char, p.x, charY);
               }
             }
           }
         }
-
-        ctx.filter = 'none';
         requestAnimationFrame(render);
       }
 
