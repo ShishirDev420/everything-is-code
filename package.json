@@ -1,0 +1,15 @@
+{
+  "name": "linkedin-profile-updater",
+  "version": "1.0.0",
+  "description": "Automated LinkedIn profile updater using Playwright",
+  "main": "update-profile.js",
+  "scripts": {
+    "update": "node update-profile.js",
+    "login": "node update-profile.js --login-only",
+    "dry-run": "node update-profile.js --dry-run",
+    "snapshot": "node extract-profile.js"
+  },
+  "dependencies": {
+    "playwright": "^1.52.0"
+  }
+}

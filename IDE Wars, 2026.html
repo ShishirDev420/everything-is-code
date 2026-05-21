@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDE Wars, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@property --reveal-progress {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: false;
+}
+@property --bar-width {
+  syntax: '<percentage>';
+  initial-value: 0%;
+  inherits: false;
+}
+@property --counter-val {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg: oklch(0.08 0.01 50);
+  --surface: oklch(0.12 0.01 50);
+  --surface-raised: oklch(0.16 0.015 50);
+  --text-primary: oklch(0.93 0.01 50);
+  --text-secondary: oklch(0.60 0.01 50);
+  --accent-amber: oklch(0.75 0.16 75);
+  --accent-coral: oklch(0.65 0.20 25);
+  --accent-gold: oklch(0.80 0.13 90);
+  --accent-green: oklch(0.72 0.15 155);
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 4rem;
+  --space-2xl: 8rem;
+  --space-3xl: 12rem;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal-on-scroll { opacity: 1 !important; transform: none !important; }
+}
+
+svg.noise-filter { position: fixed; top: 0; left: 0; width: 0; height: 0; }
+
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+}
+
+section {
+  position: relative;
+  padding: clamp(4rem, 10vw, 10rem) clamp(1.5rem, 5vw, 6rem);
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: clamp(0.65rem, 1vw, 0.75rem);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent-amber);
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.section-label::before {
+  content: '';
+  width: 2rem;
+  height: 1px;
+  background: var(--accent-amber);
+}
+
+.section-heading {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 8rem);
+  line-height: 0.95;
+  margin-bottom: var(--space-2xl);
+  color: var(--text-primary);
+}
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, oklch(0.5 0.01 50 / 0.04) 0, oklch(0.5 0.01 50 / 0.04) 1px, transparent 1px, transparent),
+    repeating-linear-gradient(0deg, oklch(0.5 0.01 50 / 0.04) 0, oklch(0.5 0.01 50 / 0.04) 1px, transparent 1px, transparent);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+}
+
+.hero-year {
+  font-family: var(--font-mono);
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  letter-spacing: 0.3em;
+  color: var(--accent-amber);
+  margin-bottom: var(--space-lg);
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 11vw, 12rem);
+  line-height: 0.9;
+  margin-bottom: var(--space-lg);
+  color: var(--text-primary);
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--accent-amber);
+}
+
+.hero-subtitle {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  color: var(--text-secondary);
+  max-width: 55ch;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.scroll-indicator::after {
+  content: '';
+  width: 1px;
+  height: 3rem;
+  background: linear-gradient(to bottom, var(--accent-amber), transparent);
+  animation: pulse-line 2s ease-in-out infinite;
+}
+
+@keyframes pulse-line {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.models-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1.6fr 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+@media (max-width: 900px) {
+  .models-grid { grid-template-columns: 1fr; }
+}
+
+.model-panel {
+  background: var(--surface);
+  padding: clamp(1.5rem, 3vw, 3rem);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid oklch(0.2 0.01 50);
+}
+
+.model-panel .panel-badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.3em 0.8em;
+  display: inline-block;
+  margin-bottom: var(--space-lg);
+}
+
+.model-panel .model-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1;
+  margin-bottom: var(--space-sm);
+}
+
+.model-panel .model-maker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-lg);
+}
+
+.model-panel .stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md) var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.model-panel .stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.model-panel .stat-value {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  line-height: 1.2;
+}
+
+.model-panel .model-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  padding-top: var(--space-lg);
+  border-top: 1px solid oklch(0.2 0.01 50);
+}
+
+.model-panel .model-quote cite {
+  display: block;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-top: var(--space-sm);
+}
+
+.panel-king {
+  border-top: 3px solid var(--accent-gold);
+}
+
+.panel-king .panel-badge {
+  background: var(--accent-gold);
+  color: var(--bg);
+}
+
+.panel-king .stat-value {
+  color: var(--accent-gold);
+}
+
+.panel-disruptor {
+  border-top: 3px solid var(--accent-green);
+}
+
+.panel-disruptor .panel-badge {
+  background: var(--accent-green);
+  color: var(--bg);
+}
+
+.panel-disruptor .stat-value {
+  color: var(--accent-green);
+}
+
+.panel-ghost {
+  opacity: 0.65;
+  border-top: 3px solid oklch(0.4 0.01 50);
+  border-style: dashed;
+}
+
+.panel-ghost .panel-badge {
+  background: oklch(0.4 0.01 50);
+  color: var(--text-primary);
+  text-decoration: line-through;
+}
+
+.panel-ghost .panel-badge span {
+  text-decoration: none;
+  color: var(--accent-coral);
+}
+
+.callout {
+  background: var(--surface-raised);
+  padding: var(--space-lg) var(--space-xl);
+  font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+  border: 1px solid oklch(0.25 0.02 50);
+}
+
+.callout-highlight {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  color: var(--accent-amber);
+  white-space: nowrap;
+}
+
+.pricing-bars {
+  margin-top: var(--space-2xl);
+}
+
+.pricing-row {
+  display: grid;
+  grid-template-columns: 12rem 1fr auto;
+  gap: var(--space-md);
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.pricing-label {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.pricing-bar-track {
+  background: oklch(0.15 0.01 50);
+  height: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.pricing-bar-fill {
+  height: 100%;
+  transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 0%;
+}
+
+.pricing-bar-fill.revealed { width: var(--target-width); }
+
+.pricing-bar-fill.amber { background: var(--accent-amber); }
+.pricing-bar-fill.gold { background: var(--accent-gold); }
+.pricing-bar-fill.coral { background: var(--accent-coral); }
+.pricing-bar-fill.green { background: var(--accent-green); }
+
+.pricing-value {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.arena-terminals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+.terminal-window {
+  background: oklch(0.1 0.005 50);
+  border: 1px solid oklch(0.2 0.01 50);
+  overflow: hidden;
+}
+
+.terminal-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: oklch(0.14 0.01 50);
+  border-bottom: 1px solid oklch(0.2 0.01 50);
+}
+
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.terminal-dot.red { background: oklch(0.65 0.2 25); }
+.terminal-dot.yellow { background: oklch(0.8 0.15 90); }
+.terminal-dot.green { background: oklch(0.72 0.15 155); }
+
+.terminal-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.terminal-body {
+  padding: clamp(1.2rem, 2.5vw, 2rem);
+}
+
+.terminal-body .ide-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  margin-bottom: 0.3rem;
+}
+
+.terminal-body .ide-tagline {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-lg);
+}
+
+.terminal-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.terminal-stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.terminal-stat-value {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
+.feature-checklist {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.feature-checklist li {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.feature-checklist li::before {
+  font-size: 0.8rem;
+}
+
+.feature-checklist li.yes::before {
+  content: '✓';
+  color: var(--accent-green);
+}
+
+.feature-checklist li.no::before {
+  content: '✗';
+  color: oklch(0.5 0.01 50);
+}
+
+.terminal-window.sunset-warning {
+  border-color: var(--accent-coral);
+  position: relative;
+}
+
+.sunset-banner {
+  background: var(--accent-coral);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 0.4rem;
+  font-weight: 700;
+}
+
+.quotes-section {
+  background: oklch(0.06 0.01 50);
+}
+
+.quotes-list {
+  max-width: 70rem;
+  margin: 0 auto;
+}
+
+.quote-block {
+  padding: clamp(2rem, 5vw, 4rem) 0;
+  border-bottom: 1px solid oklch(0.15 0.01 50);
+}
+
+.quote-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.3rem, 3vw, 2.5rem);
+  line-height: 1.35;
+  max-width: 50ch;
+  margin-bottom: var(--space-md);
+}
+
+.quote-attr {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.verdict-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+.verdict-card {
+  background: var(--surface);
+  padding: var(--space-lg);
+  border: 1px solid oklch(0.2 0.01 50);
+  transition: border-color 0.3s ease;
+}
+
+.verdict-card:hover {
+  border-color: var(--accent-amber);
+}
+
+.verdict-card .verdict-category {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-amber);
+  margin-bottom: var(--space-sm);
+}
+
+.verdict-card .verdict-pick {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  margin-bottom: var(--space-sm);
+  line-height: 1.15;
+}
+
+.verdict-card .verdict-reason {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.final-statement {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 5rem);
+  line-height: 1.1;
+  text-align: center;
+  padding: var(--space-2xl) 0;
+  color: var(--accent-amber);
+}
+
+.site-footer {
+  padding: var(--space-xl) clamp(1.5rem, 5vw, 6rem);
+  border-top: 1px solid oklch(0.15 0.01 50);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.site-footer .footer-tagline {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.site-footer .footer-sources {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: oklch(0.35 0.01 50);
+  text-align: right;
+}
+
+.site-footer .footer-egg {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: oklch(0.2 0.01 50);
+  letter-spacing: 0.05em;
+  cursor: default;
+  transition: color 0.5s ease;
+}
+
+.site-footer .footer-egg:hover {
+  color: var(--accent-amber);
+}
+
+.brawl-section {
+  background: oklch(0.06 0.01 50);
+  overflow: hidden;
+}
+
+.fighter-select {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+.fighter-card {
+  background: var(--surface);
+  border: 1px solid oklch(0.2 0.01 50);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+  text-align: center;
+}
+
+.fighter-card:hover {
+  border-color: var(--accent-amber);
+  transform: translateY(-4px);
+}
+
+.fighter-card .fighter-portrait {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 2.5rem;
+  font-weight: 700;
+  border-radius: 50%;
+  border: 2px solid;
+}
+
+.fighter-card.claude .fighter-portrait {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  box-shadow: 0 0 20px oklch(0.8 0.13 90 / 0.15);
+}
+
+.fighter-card.deepseek .fighter-portrait {
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+  box-shadow: 0 0 20px oklch(0.72 0.15 155 / 0.15);
+}
+
+.fighter-card.gemini .fighter-portrait {
+  border-color: oklch(0.5 0.01 50);
+  color: oklch(0.5 0.01 50);
+  opacity: 0.6;
+}
+
+.fighter-card .fighter-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  margin-bottom: var(--space-sm);
+}
+
+.fighter-card .fighter-hp-bar {
+  width: 100%;
+  height: 6px;
+  background: oklch(0.15 0.01 50);
+  margin-bottom: var(--space-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.fighter-card .fighter-hp-bar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: var(--hp-pct, 100%);
+  background: var(--hp-color);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fighter-card .fighter-stats {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: var(--space-md);
+}
+
+.fighter-card .fighter-tagline {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+  font-style: italic;
+}
+
+.fighter-card .select-btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.6rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--accent-amber);
+  color: var(--accent-amber);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.fighter-card .select-btn:hover {
+  background: var(--accent-amber);
+  color: var(--bg);
+}
+
+.battle-arena {
+  display: none;
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+.battle-arena.active {
+  display: block;
+}
+
+.battle-hud {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--space-lg);
+  align-items: center;
+  margin-bottom: var(--space-2xl);
+}
+
+@media (max-width: 700px) {
+  .battle-hud { grid-template-columns: 1fr; gap: var(--space-md); }
+}
+
+.battle-fighter {
+  text-align: center;
+}
+
+.battle-fighter.enemy {
+  transform: scaleX(-1);
+}
+
+.battle-fighter.enemy .battle-fighter-name,
+.battle-fighter.enemy .battle-hp-text,
+.battle-fighter.enemy .battle-portrait {
+  transform: scaleX(-1);
+}
+
+.battle-portrait {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto var(--space-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  border-radius: 50%;
+  border: 3px solid;
+  transition: all 0.3s ease;
+}
+
+.battle-portrait.taking-damage {
+  animation: damage-flash 0.3s ease;
+}
+
+@keyframes damage-flash {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(2) saturate(0); }
+}
+
+.battle-fighter-name {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  margin-bottom: var(--space-xs);
+}
+
+.battle-hp-track {
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  height: 12px;
+  background: oklch(0.15 0.01 50);
+  border: 1px solid oklch(0.25 0.01 50);
+  position: relative;
+  overflow: hidden;
+}
+
+.battle-hp-fill {
+  height: 100%;
+  width: var(--hp-pct, 100%);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.battle-hp-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255,255,255,0.3);
+}
+
+.battle-hp-text {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+}
+
+.vs-badge {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4rem);
+  color: var(--accent-amber);
+  line-height: 1;
+}
+
+.moves-panel {
+  background: var(--surface);
+  border: 1px solid oklch(0.2 0.01 50);
+  padding: var(--space-lg);
+  max-width: 40rem;
+  margin: 0 auto var(--space-2xl);
+}
+
+.moves-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+  text-align: center;
+}
+
+.moves-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.move-btn {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: var(--space-md) var(--space-lg);
+  background: oklch(0.14 0.01 50);
+  border: 1px solid oklch(0.25 0.01 50);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.move-btn:hover:not(:disabled) {
+  border-color: var(--accent-amber);
+  background: oklch(0.18 0.01 50);
+}
+
+.move-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.move-btn .move-name {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.move-btn .move-desc {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.battle-log {
+  background: oklch(0.08 0.01 50);
+  border: 1px solid oklch(0.15 0.01 50);
+  padding: var(--space-md);
+  max-width: 40rem;
+  margin: 0 auto;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.7;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.battle-log .log-entry {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid oklch(0.12 0.01 50);
+  animation: log-fade-in 0.3s ease;
+}
+
+@keyframes log-fade-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.battle-log .log-entry:last-child {
+  border-bottom: none;
+}
+
+.battle-log .log-insight {
+  color: var(--accent-amber);
+  font-style: italic;
+  display: block;
+  margin-top: 2px;
+  padding-left: 1rem;
+  border-left: 2px solid var(--accent-amber);
+}
+
+.battle-log .log-damage {
+  color: var(--accent-coral);
+  font-weight: 700;
+}
+
+.battle-log .log-heal {
+  color: var(--accent-green);
+  font-weight: 700;
+}
+
+.battle-log .log-block {
+  color: var(--accent-gold);
+}
+
+.battle-log .log-ghost {
+  color: oklch(0.5 0.01 50);
+  font-style: italic;
+}
+
+.damage-float {
+  position: fixed;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  pointer-events: none;
+  z-index: 10000;
+  animation: float-up 1.2s ease-out forwards;
+  text-shadow: 0 0 20px currentColor;
+}
+
+@keyframes float-up {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-80px) scale(1.3); }
+}
+
+.ghost-glitch {
+  animation: ghost-flicker 2s infinite;
+  opacity: 0.6;
+}
+
+@keyframes ghost-flicker {
+  0%, 100% { opacity: 0.6; filter: none; }
+  5% { opacity: 0.3; filter: blur(1px); }
+  10% { opacity: 0.7; }
+  15% { opacity: 0.2; filter: blur(2px) hue-rotate(90deg); }
+  20% { opacity: 0.6; filter: none; }
+  50% { opacity: 0.6; }
+  55% { opacity: 0.1; filter: blur(3px); }
+  60% { opacity: 0.5; }
+}
+
+.victory-screen {
+  display: none;
+  text-align: center;
+  padding: var(--space-2xl) 0;
+}
+
+.victory-screen.active {
+  display: block;
+}
+
+.victory-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 5rem);
+  margin-bottom: var(--space-lg);
+}
+
+.victory-winner {
+  color: var(--accent-gold);
+}
+
+.victory-loser {
+  color: var(--accent-coral);
+}
+
+.learnings-card {
+  background: var(--surface);
+  border: 1px solid oklch(0.2 0.01 50);
+  padding: var(--space-xl);
+  max-width: 40rem;
+  margin: var(--space-xl) auto;
+  text-align: left;
+}
+
+.learnings-card h4 {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-amber);
+  margin-bottom: var(--space-md);
+}
+
+.learnings-card ul {
+  list-style: none;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.learnings-card li {
+  padding: var(--space-sm) 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.learnings-card li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent-amber);
+}
+
+.reset-btn {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.8rem 2rem;
+  background: transparent;
+  border: 1px solid var(--accent-amber);
+  color: var(--accent-amber);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: var(--space-lg);
+}
+
+.reset-btn:hover {
+  background: var(--accent-amber);
+  color: var(--bg);
+}
+
+#matrix-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#matrix-canvas.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+</style>
+</head>
+<body>
+
+<svg class="noise-filter" xmlns="http://www.w3.org/2000/svg">
+  <filter id="noise">
+    <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+  </filter>
+</svg>
+<div class="noise-overlay" style="filter: url(#noise); width: 100%; height: 100%;"></div>
+
+<canvas id="matrix-canvas"></canvas>
+
+<section class="hero">
+  <div class="hero-year reveal-on-scroll">MAY 2026</div>
+  <h1 class="hero-title reveal-on-scroll">IDE <em>Wars</em>,</h1>
+  <p class="hero-subtitle reveal-on-scroll">An experimental comparison of the models and tools shaping the future of code. Benchmarked, debated, and dissected.</p>
+  <div class="scroll-indicator">Scroll</div>
+</section>
+
+<section id="models">
+  <div class="section-label reveal-on-scroll">01 / Models</div>
+  <h2 class="section-heading reveal-on-scroll">The Models</h2>
+
+  <div class="callout reveal-on-scroll">
+    <span class="callout-highlight">5x</span>
+    <span>cheaper to run DeepSeek V4 Pro than Claude Opus 4.7 — and it's open weight.</span>
+  </div>
+
+  <div class="models-grid">
+    <article class="model-panel panel-king reveal-on-scroll">
+      <span class="panel-badge">#1 Intelligence</span>
+      <h3 class="model-name">Claude Opus 4.7</h3>
+      <div class="model-maker">Anthropic</div>
+      <div class="stat-grid">
+        <div>
+          <div class="stat-label">Intelligence Index</div>
+          <div class="stat-value"><span class="counter" data-target="57">0</span></div>
+        </div>
+        <div>
+          <div class="stat-label">Context</div>
+          <div class="stat-value">1M tokens</div>
+        </div>
+        <div>
+          <div class="stat-label">Input Price</div>
+          <div class="stat-value">$15/1M</div>
+        </div>
+        <div>
+          <div class="stat-label">Output Price</div>
+          <div class="stat-value">$75/1M</div>
+        </div>
+        <div>
+          <div class="stat-label">LMArena</div>
+          <div class="stat-value">#1 All</div>
+        </div>
+        <div>
+          <div class="stat-label">Released</div>
+          <div class="stat-value">Apr 2026</div>
+        </div>
+      </div>
+      <blockquote class="model-quote">
+        "I've never seen such a devoted fanbase to what is, at the end of the day, a software tool. The Claude fan base goes way beyond that — bordering on the fanatical."
+        <cite>— Kylie Robison, Wired</cite>
+      </blockquote>
+    </article>
+
+    <article class="model-panel panel-disruptor reveal-on-scroll">
+      <span class="panel-badge">Open Weight</span>
+      <h3 class="model-name">DeepSeek V4 Pro</h3>
+      <div class="model-maker">DeepSeek (High-Flyer)</div>
+      <div class="stat-grid">
+        <div>
+          <div class="stat-label">Intelligence Index</div>
+          <div class="stat-value"><span class="counter" data-target="52">0</span></div>
+        </div>
+        <div>
+          <div class="stat-label">Context</div>
+          <div class="stat-value">1M / 384K out</div>
+        </div>
+        <div>
+          <div class="stat-label">Input Price</div>
+          <div class="stat-value">$1.74/1M</div>
+        </div>
+        <div>
+          <div class="stat-label">Output Price</div>
+          <div class="stat-value">$3.48/1M</div>
+        </div>
+        <div>
+          <div class="stat-label">Params</div>
+          <div class="stat-value">1.6T MoE</div>
+        </div>
+        <div>
+          <div class="stat-label">License</div>
+          <div class="stat-value">MIT</div>
+        </div>
+      </div>
+      <blockquote class="model-quote">
+        "Sent shock waves through the industry described as triggering a 'Sputnik moment' for the US in AI."
+        <cite>— The New York Times</cite>
+      </blockquote>
+    </article>
+
+    <article class="model-panel panel-ghost reveal-on-scroll">
+      <span class="panel-badge">Deprecated <span>→ 3.1 Pro</span></span>
+      <h3 class="model-name">Gemini 1.5 Pro</h3>
+      <div class="model-maker">Google DeepMind</div>
+      <div class="stat-grid">
+        <div>
+          <div class="stat-label">Context</div>
+          <div class="stat-value">10M tokens</div>
+        </div>
+        <div>
+          <div class="stat-label">Multimodal</div>
+          <div class="stat-value">Text+Image+Audio+Video</div>
+        </div>
+        <div>
+          <div class="stat-label">MMLU</div>
+          <div class="stat-value">90%</div>
+        </div>
+        <div>
+          <div class="stat-label">Status</div>
+          <div class="stat-value" style="color:var(--accent-coral)">Sunset</div>
+        </div>
+      </div>
+      <blockquote class="model-quote">
+        "Gemini would combine the power of AlphaGo and other Google–DeepMind LLMs."
+        <cite>— Demis Hassabis, CEO Google DeepMind</cite>
+      </blockquote>
+    </article>
+  </div>
+
+  <h3 style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:var(--space-lg);">Pricing per 1M tokens (blended cost)</h3>
+
+  <div class="pricing-bars">
+    <div class="pricing-row reveal-on-scroll">
+      <div class="pricing-label">Claude Opus 4.7</div>
+      <div class="pricing-bar-track"><div class="pricing-bar-fill gold" style="--target-width:100%"></div></div>
+      <div class="pricing-value">$10.94</div>
+    </div>
+    <div class="pricing-row reveal-on-scroll">
+      <div class="pricing-label">Gemini 1.5 Pro</div>
+      <div class="pricing-bar-track"><div class="pricing-bar-fill amber" style="--target-width:65%"></div></div>
+      <div class="pricing-value">~$7.00</div>
+    </div>
+    <div class="pricing-row reveal-on-scroll">
+      <div class="pricing-label">DeepSeek V4 Pro</div>
+      <div class="pricing-bar-track"><div class="pricing-bar-fill green" style="--target-width:20%"></div></div>
+      <div class="pricing-value">$2.17</div>
+    </div>
+  </div>
+</section>
+
+<section id="arena">
+  <div class="section-label reveal-on-scroll">02 / Arena</div>
+  <h2 class="section-heading reveal-on-scroll">The Arena</h2>
+
+  <div class="arena-terminals">
+    <article class="terminal-window reveal-on-scroll">
+      <div class="terminal-titlebar">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-title">cursor — ~/project</span>
+      </div>
+      <div class="terminal-body">
+        <h3 class="ide-name">Cursor</h3>
+        <div class="ide-tagline">The Polished King</div>
+        <div class="terminal-stats">
+          <div><div class="terminal-stat-label">Price</div><div class="terminal-stat-value">$20/mo</div></div>
+          <div><div class="terminal-stat-label">Adoption</div><div class="terminal-stat-value">50%+ F500</div></div>
+          <div><div class="terminal-stat-label">Models</div><div class="terminal-stat-value">Multi</div></div>
+          <div><div class="terminal-stat-label">Type</div><div class="terminal-stat-value">Desktop IDE</div></div>
+        </div>
+        <ul class="feature-checklist">
+          <li class="yes">Multi-model</li>
+          <li class="yes">Tab complete</li>
+          <li class="yes">Agentic mode</li>
+          <li class="yes">Cloud agents</li>
+          <li class="no">Open source</li>
+          <li class="no">Free tier</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="terminal-window reveal-on-scroll">
+      <div class="terminal-titlebar">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-title">opencode — ~/project</span>
+      </div>
+      <div class="terminal-body">
+        <h3 class="ide-name">opencode</h3>
+        <div class="ide-tagline">The Open-Source Challenger</div>
+        <div class="terminal-stats">
+          <div><div class="terminal-stat-label">Price</div><div class="terminal-stat-value">Free</div></div>
+          <div><div class="terminal-stat-label">Stars</div><div class="terminal-stat-value">160K+</div></div>
+          <div><div class="terminal-stat-label">Devs</div><div class="terminal-stat-value">7.5M/mo</div></div>
+          <div><div class="terminal-stat-label">Type</div><div class="terminal-stat-value">TUI + Desktop</div></div>
+        </div>
+        <ul class="feature-checklist">
+          <li class="yes">Multi-model</li>
+          <li class="yes">Open source</li>
+          <li class="yes">Free core</li>
+          <li class="yes">Terminal-native</li>
+          <li class="yes">Desktop (beta)</li>
+          <li class="yes">Zero data retention</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="terminal-window sunset-warning reveal-on-scroll">
+      <div class="sunset-banner">Sunset March 2027</div>
+      <div class="terminal-titlebar">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-title">firebase-studio — ~/project</span>
+      </div>
+      <div class="terminal-body">
+        <h3 class="ide-name">Firebase Studio</h3>
+        <div class="ide-tagline">The Cloud Contender</div>
+        <div class="terminal-stats">
+          <div><div class="terminal-stat-label">Price</div><div class="terminal-stat-value">Free (3 ws)</div></div>
+          <div><div class="terminal-stat-label">Cloud</div><div class="terminal-stat-value">Browser-only</div></div>
+          <div><div class="terminal-stat-label">AI</div><div class="terminal-stat-value">Gemini only</div></div>
+          <div><div class="terminal-stat-label">Type</div><div class="terminal-stat-value">Web IDE</div></div>
+        </div>
+        <ul class="feature-checklist">
+          <li class="yes">Free tier</li>
+          <li class="yes">Google Cloud</li>
+          <li class="no">Open source</li>
+          <li class="no">Multi-model</li>
+          <li class="no">Staying alive</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="brawl" class="brawl-section">
+  <div class="section-label reveal-on-scroll">03 / Brawl</div>
+  <h2 class="section-heading reveal-on-scroll">Model Brawl</h2>
+
+  <div id="fighter-select" class="fighter-select">
+    <div class="fighter-card claude" data-fighter="claude">
+      <div class="fighter-portrait">C</div>
+      <h3 class="fighter-name">Claude Opus 4.7</h3>
+      <div class="fighter-tagline">"I don't need to be cheap to win."</div>
+      <div class="fighter-hp-bar" style="--hp-pct:100%;--hp-color:var(--accent-gold)"></div>
+      <div class="fighter-stats">
+        <span>HP: 100</span>
+        <span>Speed: 3</span>
+        <span>Tank</span>
+      </div>
+      <button class="select-btn">Select Fighter</button>
+    </div>
+
+    <div class="fighter-card deepseek" data-fighter="deepseek">
+      <div class="fighter-portrait">D</div>
+      <h3 class="fighter-name">DeepSeek V4 Pro</h3>
+      <div class="fighter-tagline">"I cost less than your coffee."</div>
+      <div class="fighter-hp-bar" style="--hp-pct:100%;--hp-color:var(--accent-green)"></div>
+      <div class="fighter-stats">
+        <span>HP: 80</span>
+        <span>Speed: 4</span>
+        <span>Glass Cannon</span>
+      </div>
+      <button class="select-btn">Select Fighter</button>
+    </div>
+
+    <div class="fighter-card gemini" data-fighter="gemini">
+      <div class="fighter-portrait">G</div>
+      <h3 class="fighter-name">Gemini 1.5 Pro</h3>
+      <div class="fighter-tagline">"I... still... work..."</div>
+      <div class="fighter-hp-bar" style="--hp-pct:100%;--hp-color:oklch(0.5 0.01 50)"></div>
+      <div class="fighter-stats">
+        <span>HP: 60</span>
+        <span>Speed: 2</span>
+        <span>Ghost</span>
+      </div>
+      <button class="select-btn">Select Fighter</button>
+    </div>
+  </div>
+
+  <div id="battle-arena" class="battle-arena">
+    <div class="battle-hud">
+      <div class="battle-fighter" id="player-hud">
+        <div class="battle-portrait" id="player-portrait">C</div>
+        <div class="battle-fighter-name" id="player-name">Claude Opus 4.7</div>
+        <div class="battle-hp-track">
+          <div class="battle-hp-fill" id="player-hp-fill" style="--hp-pct:100%;background:var(--accent-gold)"></div>
+        </div>
+        <div class="battle-hp-text" id="player-hp-text">100 / 100 HP</div>
+      </div>
+      <div class="vs-badge">VS</div>
+      <div class="battle-fighter enemy" id="enemy-hud">
+        <div class="battle-portrait" id="enemy-portrait">D</div>
+        <div class="battle-fighter-name" id="enemy-name">DeepSeek V4 Pro</div>
+        <div class="battle-hp-track">
+          <div class="battle-hp-fill" id="enemy-hp-fill" style="--hp-pct:100%;background:var(--accent-green)"></div>
+        </div>
+        <div class="battle-hp-text" id="enemy-hp-text">80 / 80 HP</div>
+      </div>
+    </div>
+
+    <div class="moves-panel">
+      <div class="moves-title">Choose Your Move</div>
+      <div class="moves-grid" id="moves-grid">
+        <button class="move-btn" data-move="0">
+          <span class="move-name">#1 Coding Combo</span>
+          <span class="move-desc">25 dmg · Guaranteed hit</span>
+        </button>
+        <button class="move-btn" data-move="1">
+          <span class="move-name">Constitutional Shield</span>
+          <span class="move-desc">Block 50% next hit</span>
+        </button>
+        <button class="move-btn" data-move="2">
+          <span class="move-name">Fanatical Fanbase</span>
+          <span class="move-desc">Heal 15 HP</span>
+        </button>
+        <button class="move-btn" data-move="3">
+          <span class="move-name">Agent Mode</span>
+          <span class="move-desc">35 dmg · Slow windup</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="battle-log" id="battle-log" aria-live="polite">
+      <div class="log-entry">Battle started! Select a move to attack.</div>
+    </div>
+  </div>
+
+  <div id="victory-screen" class="victory-screen">
+    <h3 class="victory-title" id="victory-title">Victory!</h3>
+    <div class="learnings-card" id="learnings-card">
+      <h4>What You Learned</h4>
+      <ul id="learnings-list"></ul>
+    </div>
+    <button class="reset-btn" id="reset-btn">Fight Again</button>
+  </div>
+</section>
+
+<section id="voices" class="quotes-section">
+  <div class="section-label reveal-on-scroll">04 / Voices</div>
+  <h2 class="section-heading reveal-on-scroll">Voices</h2>
+
+  <div class="quotes-list">
+    <div class="quote-block reveal-on-scroll">
+      <blockquote class="quote-text">"I've never seen such a devoted fanbase to what is, at the end of the day, a software tool. The Claude fan base goes way beyond that — bordering on the fanatical."</blockquote>
+      <div class="quote-attr">Kylie Robison — Wired</div>
+    </div>
+
+    <div class="quote-block reveal-on-scroll">
+      <blockquote class="quote-text">"Gemini would combine the power of AlphaGo and other Google–DeepMind LLMs to create something that could trump ChatGPT."</blockquote>
+      <div class="quote-attr">Demis Hassabis — CEO, Google DeepMind</div>
+    </div>
+
+    <div class="quote-block reveal-on-scroll">
+      <blockquote class="quote-text">"Sent shock waves through the industry described as triggering a 'Sputnik moment' for the US in artificial intelligence."</blockquote>
+      <div class="quote-attr">The New York Times — on DeepSeek</div>
+    </div>
+
+    <div class="quote-block reveal-on-scroll">
+      <blockquote class="quote-text">"Recruits individuals without computer science backgrounds to expand the range of expertise incorporated into the models, for instance in poetry or advanced mathematics."</blockquote>
+      <div class="quote-attr">Liang Wenfeng — CEO, DeepSeek</div>
+    </div>
+
+    <div class="quote-block reveal-on-scroll">
+      <blockquote class="quote-text">"The first language model to outperform human experts on the 57-subject MMLU test, obtaining a score of 90%."</blockquote>
+      <div class="quote-attr">The Guardian — on Gemini Ultra</div>
+    </div>
+
+    <div class="quote-block reveal-on-scroll">
+      <blockquote class="quote-text">"Constitutional AI — a technique that uses a document of principles to train the model to be harmless and helpful without relying on extensive or expensive human feedback."</blockquote>
+      <div class="quote-attr">Dario Amodei — CEO, Anthropic</div>
+    </div>
+  </div>
+</section>
+
+<section id="verdict">
+  <div class="section-label reveal-on-scroll">05 / Verdict</div>
+  <h2 class="section-heading reveal-on-scroll">The Verdict</h2>
+
+  <div class="verdict-grid">
+    <div class="verdict-card reveal-on-scroll">
+      <div class="verdict-category">Best Quality</div>
+      <div class="verdict-pick">Claude Opus 4.7</div>
+      <div class="verdict-reason">#1 on every major benchmark. Text, coding, vision, documents. No compromises.</div>
+    </div>
+    <div class="verdict-card reveal-on-scroll">
+      <div class="verdict-category">Best Value</div>
+      <div class="verdict-pick">DeepSeek V4 Flash</div>
+      <div class="verdict-reason">$0.18 per million tokens blended. 60x cheaper than Opus. Insane cost efficiency.</div>
+    </div>
+    <div class="verdict-card reveal-on-scroll">
+      <div class="verdict-category">Best Coding</div>
+      <div class="verdict-pick">Claude + Code</div>
+      <div class="verdict-reason">Opus 4.7 dominates WebDev arena. Claude Code went viral for a reason.</div>
+    </div>
+    <div class="verdict-card reveal-on-scroll">
+      <div class="verdict-category">Open Source</div>
+      <div class="verdict-pick">DeepSeek V4 Pro</div>
+      <div class="verdict-reason">MIT license. Self-host anywhere. Weights freely available. The people's model.</div>
+    </div>
+    <div class="verdict-card reveal-on-scroll">
+      <div class="verdict-category">Massive Context</div>
+      <div class="verdict-pick">Gemini 3.1 Pro</div>
+      <div class="verdict-reason">10M tokens in research, 1M in production. Ingest entire codebases.</div>
+    </div>
+    <div class="verdict-card reveal-on-scroll">
+      <div class="verdict-category">Multimodal</div>
+      <div class="verdict-pick">Gemini 3.1 Pro</div>
+      <div class="verdict-reason">Native text, image, audio, video. The only model that sees everything.</div>
+    </div>
+    <div class="verdict-card reveal-on-scroll">
+      <div class="verdict-category">Best IDE</div>
+      <div class="verdict-pick">Cursor</div>
+      <div class="verdict-reason">Polished UX. Multi-model. 50%+ of Fortune 500. SOC 2 certified.</div>
+    </div>
+    <div class="verdict-card reveal-on-scroll">
+      <div class="verdict-category">Open-Source IDE</div>
+      <div class="verdict-pick">opencode</div>
+      <div class="verdict-reason">160K stars. 7.5M devs. Free core. Zero data retention. No vendor lock-in.</div>
+    </div>
+  </div>
+
+  <p class="final-statement reveal-on-scroll">The future is multi-model.<br>Pick the right tool for the job.</p>
+</section>
+
+<footer class="site-footer">
+  <div>
+    <div class="footer-tagline">Built with obsessive attention to detail</div>
+  </div>
+  <div class="footer-egg" id="konami-hint">↑↑↓↓←→←→BA</div>
+  <div>
+    <div class="footer-sources">
+      Sources: LMArena · Artificial Analysis · Wired · NYT · The Guardian · Anthropic · DeepSeek · Google<br>
+      May 2026
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (prefersReducedMotion) {
+    document.querySelectorAll('.reveal-on-scroll').forEach(function(el) {
+      el.classList.add('revealed');
+    });
+    document.querySelectorAll('.pricing-bar-fill').forEach(function(el) {
+      el.style.width = el.style.getPropertyValue('--target-width') || el.getAttribute('data-width');
+    });
+    return;
+  }
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var delay = 0;
+        var siblings = el.parentElement.querySelectorAll('.reveal-on-scroll');
+        siblings.forEach(function(sib, i) {
+          if (sib === el) delay = i * 80;
+        });
+        setTimeout(function() {
+          el.classList.add('revealed');
+          var bars = el.querySelectorAll('.pricing-bar-fill');
+          bars.forEach(function(bar) {
+            bar.classList.add('revealed');
+          });
+          if (el.classList.contains('pricing-bar-fill')) {
+            el.classList.add('revealed');
+          }
+        }, delay);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal-on-scroll').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  var pricingObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var bar = entry.target;
+        setTimeout(function() {
+          bar.classList.add('revealed');
+        }, 300);
+        pricingObserver.unobserve(bar);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.pricing-bar-fill').forEach(function(bar) {
+    pricingObserver.observe(bar);
+  });
+
+  var counterObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var el = entry.target;
+        var target = parseInt(el.getAttribute('data-target'), 10);
+        var current = 0;
+        var duration = 1200;
+        var start = null;
+        function animate(timestamp) {
+          if (!start) start = timestamp;
+          var progress = Math.min((timestamp - start) / duration, 1);
+          var eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(eased * target);
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          }
+        }
+        requestAnimationFrame(animate);
+        counterObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.counter').forEach(function(el) {
+    counterObserver.observe(el);
+  });
+
+  var KONAMI_CODE = [38,38,40,40,37,39,37,39,66,65];
+  var konamiIndex = 0;
+  var matrixActive = false;
+
+  document.addEventListener('keydown', function(e) {
+    if (e.keyCode === KONAMI_CODE[konamiIndex]) {
+      konamiIndex++;
+      if (konamiIndex === KONAMI_CODE.length && !matrixActive) {
+        konamiIndex = 0;
+        activateMatrixRain();
+      }
+    } else {
+      konamiIndex = 0;
+    }
+  });
+
+  function activateMatrixRain() {
+    matrixActive = true;
+    var canvas = document.getElementById('matrix-canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.classList.add('active');
+
+    var chars = '01アイウエオカキクケコ{}[]<>=/;:function var let const return import export class new this'.split('');
+    var fontSize = 14;
+    var columns = Math.floor(canvas.width / fontSize);
+    var drops = [];
+    for (var i = 0; i < columns; i++) {
+      drops[i] = Math.random() * canvas.height / fontSize * -1;
+    }
+
+    function draw() {
+      ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = oklchGreen();
+      ctx.font = fontSize + 'px "JetBrains Mono", monospace';
+      for (var i = 0; i < drops.length; i++) {
+        var text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    function oklchGreen() {
+      return '#4ade80';
+    }
+
+    var interval = setInterval(draw, 33);
+
+    setTimeout(function() {
+      clearInterval(interval);
+      canvas.classList.remove('active');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      matrixActive = false;
+    }, 5000);
+  }
+
+  window.addEventListener('resize', function() {
+    var canvas = document.getElementById('matrix-canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  // ===== MODEL BRAWL GAME =====
+  var FIGHTERS = {
+    claude: {
+      name: 'Claude Opus 4.7',
+      maxHp: 100,
+      hp: 100,
+      hpColor: 'var(--accent-gold)',
+      portrait: 'C',
+      tagline: 'Benchmark King',
+      moves: [
+        { name: '#1 Coding Combo', damage: 25, type: 'attack', insight: '#1 on LMArena Coding, WebDev, Vision, and Documents — the undisputed champion' },
+        { name: 'Constitutional Shield', damage: 0, type: 'defend', insight: 'Constitutional AI trains Claude to refuse harmful outputs — defensive resilience', block: 0.5 },
+        { name: 'Fanatical Fanbase', damage: 0, type: 'heal', insight: "Wired: 'bordering on the fanatical' — community loyalty = staying power", heal: 15 },
+        { name: 'Agent Mode', damage: 35, type: 'attack', insight: 'Claude Code went viral — agentic coding at its best' }
+      ],
+      ai: { prefers: 'attack', defendAt: 0.35, healAt: 0.3 }
+    },
+    deepseek: {
+      name: 'DeepSeek V4 Pro',
+      maxHp: 80,
+      hp: 80,
+      hpColor: 'var(--accent-green)',
+      portrait: 'D',
+      tagline: 'The Disruptor',
+      moves: [
+        { name: '5x Cost Slash', damage: 18, type: 'attack', insight: '$2.17 blended vs $10.94 for Claude — 5x cheaper, you can attack more often' },
+        { name: 'Open-Source Slam', damage: 35, type: 'attack', insight: 'MIT license = freedom, but self-hosting means you carry operational burden', selfDamage: 10 },
+        { name: 'Sputnik Shockwave', damage: 15, type: 'attack', insight: 'Triggered $600B Nvidia market cap drop — disruption hits everyone', aoe: true },
+        { name: 'MIT License', damage: 0, type: 'heal', insight: 'Open-weight = community contributions keep the model improving', heal: 10 }
+      ],
+      ai: { prefers: 'fast', slamAt: 0.6, healAt: 0.4 }
+    },
+    gemini: {
+      name: 'Gemini 1.5 Pro',
+      maxHp: 60,
+      hp: 60,
+      hpColor: 'oklch(0.5 0.01 50)',
+      portrait: 'G',
+      tagline: 'The Ghost',
+      ghost: true,
+      moves: [
+        { name: '10M Context Tsunami', damage: 30, type: 'attack', insight: '10M tokens context window — when it works, it crushes', deprecateChance: 0.5, deprecateMsg: 'Context window exceeded — model deprecated' },
+        { name: 'Multimodal Assault', damage: 25, type: 'attack', insight: 'Text + Image + Audio + Video — true multimodal power', deprecateChance: 0.5, deprecateFallback: 5, deprecateMsg: 'Multimodal processing failed — text-only fallback' },
+        { name: 'Ecosystem Combo', damage: 20, type: 'attack', insight: 'Deep Google ecosystem integration — when services are up', deprecateChance: 0.5, deprecateMsg: 'Google service unavailable' },
+        { name: 'Deprecation Notice', damage: 0, type: 'defend', insight: 'This model is being sunset — sometimes the notice works', deprecateChance: 0.5, block: 0.5, deprecateMsg: 'This model is no longer supported' }
+      ],
+      ai: { prefers: 'random', defendAt: 0.3 }
+    }
+  };
+
+  var gameState = null;
+  var insightsSeen = [];
+  var battleLog = document.getElementById('battle-log');
+  var fighterSelect = document.getElementById('fighter-select');
+  var battleArena = document.getElementById('battle-arena');
+  var victoryScreen = document.getElementById('victory-screen');
+  var movesGrid = document.getElementById('moves-grid');
+  var resetBtn = document.getElementById('reset-btn');
+
+  function logEntry(html) {
+    var entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = html;
+    battleLog.appendChild(entry);
+    battleLog.scrollTop = battleLog.scrollHeight;
+  }
+
+  function showInsight(text) {
+    var entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = '<span class="log-insight">💡 ' + text + '</span>';
+    battleLog.appendChild(entry);
+    battleLog.scrollTop = battleLog.scrollHeight;
+    if (insightsSeen.indexOf(text) === -1) insightsSeen.push(text);
+  }
+
+  function floatDamage(amount, isHeal, targetEl) {
+    var rect = targetEl.getBoundingClientRect();
+    var floatEl = document.createElement('div');
+    floatEl.className = 'damage-float';
+    floatEl.textContent = isHeal ? '+' + amount : '-' + amount;
+    floatEl.style.color = isHeal ? 'var(--accent-green)' : 'var(--accent-coral)';
+    floatEl.style.left = (rect.left + rect.width / 2 - 20) + 'px';
+    floatEl.style.top = (rect.top) + 'px';
+    document.body.appendChild(floatEl);
+    setTimeout(function() { floatEl.remove(); }, 1200);
+  }
+
+  function updateHpBar(who, fighter) {
+    var pct = Math.max(0, (fighter.hp / fighter.maxHp) * 100);
+    var fill = document.getElementById(who + '-hp-fill');
+    var text = document.getElementById(who + '-hp-text');
+    fill.style.setProperty('--hp-pct', pct + '%');
+    text.textContent = Math.max(0, fighter.hp) + ' / ' + fighter.maxHp + ' HP';
+  }
+
+  function executeMove(attacker, defender, move, isPlayer) {
+    var attackerName = isPlayer ? '<strong>' + attacker.name + '</strong>' : attacker.name;
+    var defenderName = isPlayer ? defender.name : '<strong>' + defender.name + '</strong>';
+    var targetPortrait = document.getElementById((isPlayer ? 'enemy' : 'player') + '-portrait');
+
+    // Ghost deprecation check
+    if (attacker.ghost && move.deprecateChance && Math.random() < move.deprecateChance) {
+      logEntry(attackerName + ' tried <em>' + move.name + '</em>...');
+      logEntry('<span class="log-ghost">[DEPRECATED] ' + move.deprecateMsg + '</span>');
+      showInsight(move.insight);
+      return;
+    }
+
+    if (move.type === 'attack') {
+      var dmg = move.damage;
+      if (defender.blockNext) {
+        dmg = Math.floor(dmg * (1 - defender.blockNext));
+        defender.blockNext = 0;
+        logEntry(defenderName + ' blocked! Damage reduced.');
+      }
+      defender.hp -= dmg;
+      logEntry(attackerName + ' uses <em>' + move.name + '</em>! <span class="log-damage">-' + dmg + ' HP</span>');
+      floatDamage(dmg, false, targetPortrait);
+      targetPortrait.classList.add('taking-damage');
+      setTimeout(function() { targetPortrait.classList.remove('taking-damage'); }, 300);
+    } else if (move.type === 'defend') {
+      attacker.blockNext = move.block || 0;
+      logEntry(attackerName + ' uses <em>' + move.name + '</em>! <span class="log-block">Block ready</span>');
+    } else if (move.type === 'heal') {
+      var heal = move.heal || 0;
+      attacker.hp = Math.min(attacker.maxHp, attacker.hp + heal);
+      logEntry(attackerName + ' uses <em>' + move.name + '</em>! <span class="log-heal">+' + heal + ' HP</span>');
+      var selfPortrait = document.getElementById((isPlayer ? 'player' : 'enemy') + '-portrait');
+      floatDamage(heal, true, selfPortrait);
+    }
+
+    if (move.selfDamage) {
+      attacker.hp -= move.selfDamage;
+      logEntry(attackerName + ' takes <span class="log-damage">-' + move.selfDamage + ' HP</span> recoil from open-source burden.');
+    }
+
+    showInsight(move.insight);
+  }
+
+  function aiPickMove(aiFighter) {
+    var moves = aiFighter.moves;
+    var hpPct = aiFighter.hp / aiFighter.maxHp;
+    var ai = aiFighter.ai;
+
+    if (hpPct < ai.healAt) {
+      var healMove = moves.find(function(m) { return m.type === 'heal'; });
+      if (healMove && Math.random() < 0.7) return healMove;
+    }
+    if (hpPct < ai.defendAt) {
+      var defMove = moves.find(function(m) { return m.type === 'defend'; });
+      if (defMove && Math.random() < 0.6) return defMove;
+    }
+
+    var attacks = moves.filter(function(m) { return m.type === 'attack'; });
+    if (ai.prefers === 'fast') {
+      return attacks[0];
+    } else if (ai.prefers === 'random') {
+      return moves[Math.floor(Math.random() * moves.length)];
+    }
+    return attacks[attacks.length - 1];
+  }
+
+  function checkVictory() {
+    var p = gameState.player;
+    var e = gameState.enemy;
+    if (p.hp <= 0 || e.hp <= 0) {
+      movesGrid.querySelectorAll('.move-btn').forEach(function(b) { b.disabled = true; });
+      battleArena.style.display = 'none';
+      victoryScreen.classList.add('active');
+
+      var winner = p.hp > 0 ? p : e;
+      var isPlayerWin = p.hp > 0;
+      var title = document.getElementById('victory-title');
+      title.innerHTML = isPlayerWin
+        ? '<span class="victory-winner">' + winner.name + ' Wins!</span>'
+        : '<span class="victory-loser">' + winner.name + ' Wins...</span>';
+
+      var learningsList = document.getElementById('learnings-list');
+      learningsList.innerHTML = '';
+      insightsSeen.forEach(function(insight) {
+        var li = document.createElement('li');
+        li.textContent = insight;
+        learningsList.appendChild(li);
+      });
+    }
+  }
+
+  function playerTurn(moveIndex) {
+    if (!gameState) return;
+    var move = gameState.player.moves[moveIndex];
+    executeMove(gameState.player, gameState.enemy, move, true);
+    updateHpBar('player', gameState.player);
+    updateHpBar('enemy', gameState.enemy);
+    checkVictory();
+
+    if (gameState.enemy.hp > 0) {
+      movesGrid.querySelectorAll('.move-btn').forEach(function(b) { b.disabled = true; });
+      setTimeout(function() {
+        var aiMove = aiPickMove(gameState.enemy);
+        executeMove(gameState.enemy, gameState.player, aiMove, false);
+        updateHpBar('player', gameState.player);
+        updateHpBar('enemy', gameState.enemy);
+        movesGrid.querySelectorAll('.move-btn').forEach(function(b) { b.disabled = false; });
+        checkVictory();
+      }, 1200);
+    }
+  }
+
+  function startBattle(fighterKey) {
+    var opponentKeys = Object.keys(FIGHTERS).filter(function(k) { return k !== fighterKey; });
+    var opponentKey = opponentKeys[Math.floor(Math.random() * opponentKeys.length)];
+
+    gameState = {
+      player: Object.assign({}, FIGHTERS[fighterKey]),
+      enemy: Object.assign({}, FIGHTERS[opponentKey])
+    };
+    gameState.player.hp = gameState.player.maxHp;
+    gameState.player.blockNext = 0;
+    gameState.enemy.hp = gameState.enemy.maxHp;
+    gameState.enemy.blockNext = 0;
+    insightsSeen = [];
+
+    fighterSelect.style.display = 'none';
+    battleArena.style.display = 'block';
+    victoryScreen.classList.remove('active');
+
+    document.getElementById('player-portrait').textContent = gameState.player.portrait;
+    document.getElementById('player-name').textContent = gameState.player.name;
+    document.getElementById('player-hp-fill').style.background = gameState.player.hpColor;
+    document.getElementById('enemy-portrait').textContent = gameState.enemy.portrait;
+    document.getElementById('enemy-name').textContent = gameState.enemy.name;
+    document.getElementById('enemy-hp-fill').style.background = gameState.enemy.hpColor;
+
+    if (gameState.player.ghost) {
+      document.getElementById('player-portrait').classList.add('ghost-glitch');
+    } else {
+      document.getElementById('player-portrait').classList.remove('ghost-glitch');
+    }
+    if (gameState.enemy.ghost) {
+      document.getElementById('enemy-portrait').classList.add('ghost-glitch');
+    } else {
+      document.getElementById('enemy-portrait').classList.remove('ghost-glitch');
+    }
+
+    movesGrid.innerHTML = '';
+    gameState.player.moves.forEach(function(move, i) {
+      var btn = document.createElement('button');
+      btn.className = 'move-btn';
+      btn.setAttribute('data-move', i);
+      var desc = move.type === 'attack' ? move.damage + ' dmg' : move.type === 'defend' ? 'Block ' + (move.block * 100) + '%' : 'Heal ' + move.heal + ' HP';
+      btn.innerHTML = '<span class="move-name">' + move.name + '</span><span class="move-desc">' + desc + '</span>';
+      btn.addEventListener('click', function() { playerTurn(i); });
+      movesGrid.appendChild(btn);
+    });
+
+    battleLog.innerHTML = '<div class="log-entry">Battle started! <strong>' + gameState.player.name + '</strong> vs <strong>' + gameState.enemy.name + '</strong></div>';
+    updateHpBar('player', gameState.player);
+    updateHpBar('enemy', gameState.enemy);
+  }
+
+  document.querySelectorAll('.fighter-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var fighter = card.getAttribute('data-fighter');
+      startBattle(fighter);
+    });
+  });
+
+  resetBtn.addEventListener('click', function() {
+    fighterSelect.style.display = 'grid';
+    battleArena.style.display = 'none';
+    victoryScreen.classList.remove('active');
+    gameState = null;
+  });
+
+})();
+</script>
+
+</body>
+</html>
