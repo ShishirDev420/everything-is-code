@@ -379,6 +379,21 @@
       z-index: 1; pointer-events: none;
       background: radial-gradient(ellipse at center, transparent 60%, rgba(0,4,2,0.6) 100%);
     }
+    #letterbox-top,
+    #letterbox-bottom {
+      position: fixed;
+      left: 0;
+      width: 100vw;
+      height: clamp(16px, 2vh, 30px);
+      z-index: 2;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0));
+    }
+    #letterbox-top { top: 0; }
+    #letterbox-bottom {
+      bottom: 0;
+      background: linear-gradient(0deg, rgba(0,0,0,0.95), rgba(0,0,0,0));
+    }
     #nav-dots {
       position: fixed;
       right: 20px;
@@ -458,6 +473,8 @@
   <canvas id="rain-canvas" aria-hidden="true"></canvas>
   <div id="scanlines" aria-hidden="true"></div>
   <div id="vignette" aria-hidden="true"></div>
+  <div id="letterbox-top" aria-hidden="true"></div>
+  <div id="letterbox-bottom" aria-hidden="true"></div>
 
   <main>
     <section id="hero" aria-label="Introduction">
@@ -1249,6 +1266,47 @@
       trailTimeout = setTimeout(() => { cursorTrail.style.opacity = '0'; }, 2000);
     });
     cursorTrail.style.opacity = '0';
+
+    // Fit all major headings so they stay on a single line.
+    const headlineNodes = Array.from(document.querySelectorAll('h1, h2'));
+    function fitHeadline(el) {
+      const parent = el.closest('.text-backdrop') || el.parentElement;
+      if (!parent) return;
+
+      const parentStyle = window.getComputedStyle(parent);
+      const availableWidth = parent.clientWidth
+        - parseFloat(parentStyle.paddingLeft || '0')
+        - parseFloat(parentStyle.paddingRight || '0');
+      if (!availableWidth) return;
+
+      const computed = window.getComputedStyle(el);
+      const maxFontSize = parseFloat(computed.fontSize);
+      const minFontSize = el.tagName === 'H1' ? 28 : 22;
+
+      let size = maxFontSize;
+      el.style.whiteSpace = 'nowrap';
+      el.style.wordBreak = 'normal';
+      el.style.overflowWrap = 'normal';
+      el.style.hyphens = 'none';
+
+      el.style.fontSize = size + 'px';
+      while (el.scrollWidth > availableWidth && size > minFontSize) {
+        size -= 1;
+        el.style.fontSize = size + 'px';
+      }
+    }
+
+    function fitHeadlines() {
+      headlineNodes.forEach(fitHeadline);
+    }
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => requestAnimationFrame(fitHeadlines));
+    } else {
+      setTimeout(fitHeadlines, 0);
+    }
+    window.addEventListener('resize', () => requestAnimationFrame(fitHeadlines), { passive: true });
+    setTimeout(fitHeadlines, 250);
 
     // ── Interactive Orbits + Card Animations ──
     const orbitCards = document.querySelectorAll('.visual-card');

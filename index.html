@@ -76,6 +76,8 @@
       letter-spacing: -0.035em;
       color: #ffffff;
       padding: var(--space-xs) 0;
+      white-space: nowrap;
+      overflow: visible;
     }
     h1 {
       font-size: clamp(3.2rem, 12vw, 8rem);
@@ -347,8 +349,8 @@
     }
     @media (max-width: 768px) {
       section { padding: var(--space-xl) var(--space-sm); }
-      h1 { font-size: clamp(2.6rem, 14vw, 4.5rem); }
-      h2 { font-size: clamp(2.2rem, 10vw, 3.5rem); margin-bottom: var(--space-md); }
+      h1 { font-size: clamp(2rem, 9vw, 3.5rem); }
+      h2 { font-size: clamp(1.6rem, 7vw, 2.5rem); margin-bottom: var(--space-md); }
       p { font-size: 1.05rem; max-width: 100%; }
       .code-manifesto { grid-template-columns: 1fr; text-align: center; gap: var(--space-lg); }
       .code-manifesto p { margin: 0 auto; }
@@ -376,6 +378,21 @@
       width: 100vw; height: 100vh;
       z-index: 1; pointer-events: none;
       background: radial-gradient(ellipse at center, transparent 60%, rgba(0,4,2,0.6) 100%);
+    }
+    #letterbox-top,
+    #letterbox-bottom {
+      position: fixed;
+      left: 0;
+      width: 100vw;
+      height: clamp(16px, 2vh, 30px);
+      z-index: 2;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(0,0,0,0.95), rgba(0,0,0,0));
+    }
+    #letterbox-top { top: 0; }
+    #letterbox-bottom {
+      bottom: 0;
+      background: linear-gradient(0deg, rgba(0,0,0,0.95), rgba(0,0,0,0));
     }
     #nav-dots {
       position: fixed;
@@ -456,12 +473,14 @@
   <canvas id="rain-canvas" aria-hidden="true"></canvas>
   <div id="scanlines" aria-hidden="true"></div>
   <div id="vignette" aria-hidden="true"></div>
+  <div id="letterbox-top" aria-hidden="true"></div>
+  <div id="letterbox-bottom" aria-hidden="true"></div>
 
   <main>
     <section id="hero" aria-label="Introduction">
       <div class="section-content centered">
         <div class="text-backdrop">
-          <h1 class="reveal">Everything<br>is Code</h1>
+          <h1 class="reveal">Everything is Code</h1>
           <p class="subtitle reveal reveal-delay-1">You just realized this today.</p>
         </div>
       </div>
@@ -604,7 +623,7 @@
       <div class="section-content code-manifesto">
         <div class="text-backdrop">
           <span class="label reveal">Car / phone / traffic / life</span>
-          <h2 class="reveal reveal-delay-1">Your World<br>is Code</h2>
+          <h2 class="reveal reveal-delay-1">Your World is Code</h2>
           <p class="reveal reveal-delay-2">The car showing you fuel remaining? That's a <span class="highlight">readout variable</span>. The traffic light that stopped you? Executing a <span class="highlight">timing function</span>. The phone in your pocket? 10 million lines of compiled human intention running on a sliver of sand.</p>
           <p class="reveal reveal-delay-3" style="margin-top:var(--space-sm);font-size:clamp(0.95rem,1.8vw,1.1rem);color:#a0a0a0;">Your coffee maker is an embedded system. Your heartbeat monitor reads a register. The slot machine is a random number generator. The elevator is running a scheduling algorithm. <em>You are surrounded by code. You always have been.</em></p>
         </div>
@@ -639,7 +658,7 @@
       <div class="section-content centered">
         <div class="text-backdrop">
           <span class="label reveal">You just realized this today</span>
-          <h2 class="reveal">You just realized<br>this today</h2>
+          <h2 class="reveal">You just realized this today</h2>
           <p class="awaken-text reveal reveal-delay-1">
             And now you can't unsee it.
             <span class="poetry-line">The source is <span class="highlight">everywhere</span>.</span>
@@ -1247,6 +1266,47 @@
       trailTimeout = setTimeout(() => { cursorTrail.style.opacity = '0'; }, 2000);
     });
     cursorTrail.style.opacity = '0';
+
+    // Fit all major headings so they stay on a single line.
+    const headlineNodes = Array.from(document.querySelectorAll('h1, h2'));
+    function fitHeadline(el) {
+      const parent = el.closest('.text-backdrop') || el.parentElement;
+      if (!parent) return;
+
+      const parentStyle = window.getComputedStyle(parent);
+      const availableWidth = parent.clientWidth
+        - parseFloat(parentStyle.paddingLeft || '0')
+        - parseFloat(parentStyle.paddingRight || '0');
+      if (!availableWidth) return;
+
+      const computed = window.getComputedStyle(el);
+      const maxFontSize = parseFloat(computed.fontSize);
+      const minFontSize = el.tagName === 'H1' ? 28 : 22;
+
+      let size = maxFontSize;
+      el.style.whiteSpace = 'nowrap';
+      el.style.wordBreak = 'normal';
+      el.style.overflowWrap = 'normal';
+      el.style.hyphens = 'none';
+
+      el.style.fontSize = size + 'px';
+      while (el.scrollWidth > availableWidth && size > minFontSize) {
+        size -= 1;
+        el.style.fontSize = size + 'px';
+      }
+    }
+
+    function fitHeadlines() {
+      headlineNodes.forEach(fitHeadline);
+    }
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => requestAnimationFrame(fitHeadlines));
+    } else {
+      setTimeout(fitHeadlines, 0);
+    }
+    window.addEventListener('resize', () => requestAnimationFrame(fitHeadlines), { passive: true });
+    setTimeout(fitHeadlines, 250);
 
     // ── Interactive Orbits + Card Animations ──
     const orbitCards = document.querySelectorAll('.visual-card');
