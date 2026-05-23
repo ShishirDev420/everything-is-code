@@ -76,7 +76,8 @@
       letter-spacing: -0.035em;
       color: #ffffff;
       padding: var(--space-xs) 0;
-      white-space: balance;
+      white-space: nowrap;
+      overflow: visible;
     }
     h1 {
       font-size: clamp(3.2rem, 12vw, 8rem);
@@ -348,8 +349,8 @@
     }
     @media (max-width: 768px) {
       section { padding: var(--space-xl) var(--space-sm); }
-      h1 { font-size: clamp(2.6rem, 14vw, 4.5rem); }
-      h2 { font-size: clamp(2.2rem, 10vw, 3.5rem); margin-bottom: var(--space-md); }
+      h1 { font-size: clamp(2rem, 9vw, 3.5rem); }
+      h2 { font-size: clamp(1.6rem, 7vw, 2.5rem); margin-bottom: var(--space-md); }
       p { font-size: 1.05rem; max-width: 100%; }
       .code-manifesto { grid-template-columns: 1fr; text-align: center; gap: var(--space-lg); }
       .code-manifesto p { margin: 0 auto; }
