@@ -9,17 +9,15 @@
   <title>Everything is Code</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Manrope:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: oklch(5% 0.003 260);
       --surface: oklch(10% 0.006 260);
       --text: oklch(98% 0.002 260);
       --text-dim: oklch(72% 0.008 260);
-      --accent: oklch(72% 0.18 145);
-      --matrix-green: #00ff41;
+      --accent: #00ff41;
       --matrix-bright: #d0ffd0;
-      --matrix-dim: #003b00;
       --space-xs: 4px;
       --space-sm: 8px;
       --space-md: 16px;
@@ -28,75 +26,48 @@
       --space-2xl: 64px;
       --space-3xl: 96px;
     }
-
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
     body {
       font-family: 'Manrope', system-ui, sans-serif;
       background: #000804;
       color: var(--text);
       overflow-x: hidden;
+      overflow-wrap: break-word;
+      word-break: break-word;
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
-
     #rain-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 0; pointer-events: none;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
     }
-
-    main {
-      position: relative;
-      z-index: 10;
-    }
-
+    main { position: relative; z-index: 10; }
     section {
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: var(--space-xl) var(--space-lg);
+      display: flex; align-items: center; justify-content: center;
+      padding: var(--space-2xl) var(--space-lg);
       min-height: 100vh;
     }
-
-    #hero { min-height: 150vh; }
-    #awakening { min-height: 150vh; }
+    #hero { min-height: 100vh; }
+    #awakening { min-height: 100vh; }
     #outro { min-height: 100vh; }
-
-    .section-content {
-      max-width: 1050px;
-      width: 100%;
-      position: relative;
-    }
-
-    .section-content.centered {
-      text-align: center;
-      margin: 0 auto;
-    }
-
+    .section-content { max-width: 1150px; width: 100%; position: relative; padding: 0 var(--space-md); }
+    .section-content.centered { text-align: center; margin: 0 auto; }
     .text-backdrop {
       position: relative;
       padding: var(--space-2xl) var(--space-xl);
-      background: rgba(0, 6, 3, 0.7);
-      backdrop-filter: blur(8px);
-      border-radius: 4px;
+      background: rgba(0, 6, 3, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 6px;
       z-index: 11;
+      border: 1px solid rgba(0,255,65,0.06);
     }
-
     h1, h2 {
       font-family: 'Unbounded', sans-serif;
       font-weight: 900;
@@ -105,19 +76,17 @@
       letter-spacing: -0.035em;
       color: #ffffff;
       padding: var(--space-xs) 0;
+      white-space: balance;
     }
-
     h1 {
-      font-size: clamp(3.2rem, 15vw, 13rem);
+      font-size: clamp(3.2rem, 12vw, 8rem);
       text-shadow: 0 0 40px rgba(0,255,65,0.6), 0 0 80px rgba(0,255,65,0.3), 0 4px 20px rgba(0,0,0,1);
     }
-
     h2 {
-      font-size: clamp(2.4rem, 10vw, 8rem);
+      font-size: clamp(2.4rem, 8vw, 5rem);
       margin-bottom: var(--space-lg);
       text-shadow: 0 0 30px rgba(0,255,65,0.5), 0 0 60px rgba(0,255,65,0.25), 0 4px 16px rgba(0,0,0,1);
     }
-
     .subtitle {
       font-family: 'Manrope', sans-serif;
       font-weight: 300;
@@ -128,25 +97,21 @@
       margin-top: var(--space-md);
       text-shadow: 0 0 30px rgba(0,255,65,0.5), 0 0 60px rgba(0,255,65,0.25), 0 4px 16px rgba(0,0,0,1);
     }
-
     p {
       font-size: clamp(1.15rem, 2.3vw, 1.35rem);
-      max-width: 62ch;
+      max-width: 64ch;
       color: #d0d0d0;
       text-shadow: 0 2px 8px rgba(0,0,0,1);
       line-height: 1.85;
       font-weight: 400;
+      text-align: justify;
+      hyphens: auto;
     }
-
-    .centered p {
-      margin-left: auto;
-      margin-right: auto;
-    }
-
+    .centered p { margin-left: auto; margin-right: auto; }
     .label {
       display: inline-block;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -158,28 +123,66 @@
       border-radius: 2px;
       border: 1px solid rgba(0, 255, 65, 0.25);
     }
-
     .code-manifesto {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--space-2xl);
       align-items: center;
     }
-
+    .scan-beam {
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(0,255,65,0.5) 10%, rgba(180,255,180,0.9) 50%, rgba(0,255,65,0.5) 90%, transparent 100%);
+      box-shadow: 0 0 15px rgba(0,255,65,0.3), 0 0 40px rgba(0,255,65,0.1);
+      z-index: 3; pointer-events: none;
+      animation: scan-beam 6s ease-in-out infinite;
+    }
+    @keyframes scan-beam {
+      0% { top: -2px; opacity: 0; }
+      8% { opacity: 1; }
+      45% { opacity: 1; }
+      55% { opacity: 0.2; }
+      92% { opacity: 0.2; }
+      100% { top: 100%; opacity: 0; }
+    }
+    .code-particle {
+      position: absolute;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+    .icon-frame .pulse-ring {
+      position: absolute;
+      inset: -30px;
+      border: 1px solid rgba(0,255,65,0.12);
+      border-radius: 50%;
+      animation: glow-pulse 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes glow-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.2; border-width: 1px; }
+      50% { transform: scale(1.1); opacity: 0.7; border-width: 2px; box-shadow: 0 0 30px rgba(0,255,65,0.15); }
+    }
     .visual-card {
       position: relative;
-      min-height: 400px;
+      min-height: 420px;
       background: rgba(0, 8, 4, 0.88);
       border: 1px solid rgba(0, 255, 65, 0.18);
-      border-radius: 2px;
+      border-radius: 6px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      cursor: crosshair;
+      user-select: none;
     }
-
     .visual-card::before {
       content: '';
       position: absolute;
@@ -187,89 +190,68 @@
       background: linear-gradient(180deg, rgba(0,255,65,0.06) 0%, transparent 40%, rgba(0,255,65,0.04) 100%);
       pointer-events: none;
     }
-
     .icon-frame {
       position: relative;
-      width: 160px;
-      height: 160px;
+      width: 200px;
+      height: 200px;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 2;
     }
-
     .icon-frame::before {
       content: '';
       position: absolute;
-      inset: -16px;
-      border: 1px solid rgba(0, 255, 65, 0.22);
+      inset: -20px;
+      border: 1px solid rgba(0, 255, 65, 0.2);
       border-radius: 50%;
       animation: pulse-ring 4s ease-in-out infinite;
     }
-
     .icon-frame svg {
       width: 100%;
       height: 100%;
-      filter: drop-shadow(0 0 18px rgba(0, 255, 65, 0.7));
+      filter: drop-shadow(0 0 24px rgba(0, 255, 65, 0.6));
     }
-
     .orbit {
       position: absolute;
-      border: 1px solid rgba(0, 255, 65, 0.12);
+      border: 1px solid rgba(0, 255, 65, 0.1);
       border-radius: 50%;
-      animation: orbit-spin linear infinite;
+      pointer-events: none;
+      will-change: transform;
     }
-
-    .orbit:nth-child(1) {
-      width: 240px;
-      height: 240px;
-      animation-duration: 20s;
+    .orbit:nth-child(1) { width: 260px; height: 260px; }
+    .orbit:nth-child(1)::after {
+      content: '\25CF';
+      position: absolute; top: -6px; left: 50%;
+      transform: translateX(-50%);
+      color: #00ff41; font-size: 10px;
+      opacity: 0.7; text-shadow: 0 0 8px rgba(0,255,65,0.6);
     }
-
-    .orbit:nth-child(2) {
-      width: 320px;
-      height: 320px;
-      animation-duration: 30s;
-      animation-direction: reverse;
+    .orbit:nth-child(2) { width: 350px; height: 350px; }
+    .orbit:nth-child(2)::after {
+      content: '\25CF';
+      position: absolute; top: -6px; left: 50%;
+      transform: translateX(-50%);
+      color: #b4ffb4; font-size: 8px;
+      opacity: 0.5; text-shadow: 0 0 6px rgba(180,255,180,0.5);
     }
-
     .ticker {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       padding: var(--space-sm) var(--space-md);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.7rem;
       font-weight: 700;
       color: var(--accent);
-      opacity: 0.75;
+      opacity: 0.7;
       overflow: hidden;
       white-space: nowrap;
       border-top: 1px solid rgba(0, 255, 65, 0.18);
       background: rgba(0, 8, 4, 0.92);
     }
-
-    .ticker span {
-      display: inline-block;
-      animation: ticker-scroll 25s linear infinite;
-    }
-
-    @keyframes pulse-ring {
-      0%, 100% { opacity: 0.45; transform: scale(1); }
-      50% { opacity: 0.85; transform: scale(1.04); }
-    }
-
-    @keyframes orbit-spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes ticker-scroll {
-      from { transform: translateX(100%); }
-      to { transform: translateX(-100%); }
-    }
-
+    .ticker span { display: inline-block; animation: ticker-scroll 28s linear infinite; }
+    @keyframes pulse-ring { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+    @keyframes ticker-scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
     .cta-button {
       font-family: 'Unbounded', sans-serif;
       font-weight: 700;
@@ -286,21 +268,19 @@
       margin-top: var(--space-lg);
       text-shadow: 0 0 14px rgba(0, 255, 65, 0.5);
     }
-
     .cta-button:hover {
       background: var(--accent);
       color: var(--bg);
       box-shadow: 0 0 60px rgba(0, 255, 65, 0.6);
       text-shadow: none;
     }
-
     .scroll-indicator {
       position: absolute;
       bottom: var(--space-xl);
       left: 50%;
       transform: translateX(-50%);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 700;
       letter-spacing: 0.22em;
       text-transform: uppercase;
@@ -309,52 +289,35 @@
       animation: scroll-bounce 2s ease-in-out infinite;
       text-shadow: 0 4px 24px rgba(0,0,0,0.98);
     }
-
-    @keyframes scroll-bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(12px); }
-    }
-
+    @keyframes scroll-bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(12px); } }
     #mute {
       position: fixed;
-      bottom: var(--space-lg);
-      right: var(--space-lg);
+      bottom: var(--space-lg); right: var(--space-lg);
       z-index: 100;
-      width: 52px;
-      height: 52px;
+      width: 52px; height: 52px;
       background: rgba(0, 8, 4, 0.88);
       border: 1px solid rgba(0, 255, 65, 0.28);
       border-radius: 50%;
       color: var(--accent);
       cursor: pointer;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      align-items: center; justify-content: center;
       font-size: 1.2rem;
       transition: all 0.2s ease;
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
-
-    #mute:hover {
-      border-color: var(--accent);
-      box-shadow: 0 0 28px rgba(0, 255, 65, 0.5);
-    }
-
+    #mute:hover { border-color: var(--accent); box-shadow: 0 0 28px rgba(0, 255, 65, 0.5); }
     .reveal {
       opacity: 0;
       transform: translateY(55px);
       transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
     }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .reveal-delay-1 { transition-delay: 0.14s; }
-    .reveal-delay-2 { transition-delay: 0.28s; }
-    .reveal-delay-3 { transition-delay: 0.42s; }
-
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.12s; }
+    .reveal-delay-2 { transition-delay: 0.24s; }
+    .reveal-delay-3 { transition-delay: 0.40s; }
+    .reveal-delay-4 { transition-delay: 0.56s; }
     .signature {
       margin-top: var(--space-2xl);
       padding-top: var(--space-lg);
@@ -368,44 +331,142 @@
       text-shadow: 0 0 20px rgba(0, 255, 65, 0.4), 0 2px 16px rgba(0,0,0,0.95);
       opacity: 0.85;
     }
-
+    .highlight { color: #00ff41; text-shadow: 0 0 20px rgba(0,255,65,0.5); }
+    .strike { text-decoration: line-through; text-decoration-color: rgba(255,60,60,0.6); opacity: 0.5; }
+    .awaken-text {
+      font-size: clamp(1.3rem, 2.8vw, 1.7rem);
+      font-weight: 300;
+      line-height: 1.9;
+      max-width: 58ch;
+      color: #c0c0c0;
+    }
+    .awaken-text .highlight { font-weight: 600; }
+    .poetry-line {
+      display: block;
+      margin-top: var(--space-sm);
+      opacity: 0.9;
+    }
     @media (max-width: 768px) {
-      section { padding: var(--space-lg) var(--space-md); }
-      h1 { font-size: clamp(2.6rem, 15vw, 5.5rem); }
-      h2 { font-size: clamp(2.2rem, 11vw, 3.8rem); margin-bottom: var(--space-md); }
-      p { font-size: 1.15rem; max-width: 52ch; }
-      .code-manifesto { grid-template-columns: 1fr; text-align: center; gap: var(--space-xl); }
+      section { padding: var(--space-xl) var(--space-sm); }
+      h1 { font-size: clamp(2.6rem, 14vw, 4.5rem); }
+      h2 { font-size: clamp(2.2rem, 10vw, 3.5rem); margin-bottom: var(--space-md); }
+      p { font-size: 1.05rem; max-width: 100%; }
+      .code-manifesto { grid-template-columns: 1fr; text-align: center; gap: var(--space-lg); }
       .code-manifesto p { margin: 0 auto; }
-      .visual-card { min-height: 320px; }
+      .scan-beam { display: none; }
+      .visual-card { min-height: 280px; }
       #mute { bottom: var(--space-md); right: var(--space-md); width: 48px; height: 48px; }
       .scroll-indicator { bottom: var(--space-lg); }
-      .text-backdrop { padding: var(--space-xl) var(--space-md); }
+      .text-backdrop { padding: var(--space-lg) var(--space-sm); }
+      .section-content { padding: 0 var(--space-xs); }
     }
-
+    #scanlines {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 1; pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.08) 2px,
+        rgba(0, 0, 0, 0.08) 4px
+      );
+    }
+    #vignette {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: 1; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 60%, rgba(0,4,2,0.6) 100%);
+    }
+    #nav-dots {
+      position: fixed;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #nav-dots a {
+      display: block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(0,255,65,0.3);
+      background: transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    #nav-dots a:hover { border-color: var(--accent); background: rgba(0,255,65,0.15); }
+    #nav-dots a.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px rgba(0,255,65,0.5); }
+    #nav-dots a .dot-label {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      color: rgba(0,255,65,0.4);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    #nav-dots a:hover .dot-label { opacity: 1; }
+    #nav-dots a.active .dot-label { opacity: 0.8; color: var(--accent); }
+    #audio-status {
+      position: fixed;
+      bottom: calc(var(--space-lg) + 60px);
+      right: var(--space-lg);
+      z-index: 100;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(0,255,65,0.3);
+      text-align: right;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    #audio-status.active { color: var(--accent); opacity: 0.6; }
+    #cursor-trail {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(0,255,65,0.2);
+      box-shadow: 0 0 8px rgba(0,255,65,0.15);
+      transform: translate(-50%, -50%);
+      transition: width 0.1s, height 0.1s, opacity 0.3s;
+    }
+    @media (max-width: 768px) {
+      #nav-dots { display: none; }
+      #cursor-trail { display: none; }
+    }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
       .reveal { opacity: 1; transform: none; }
     }
   </style>
 </head>
 <body>
   <canvas id="rain-canvas" aria-hidden="true"></canvas>
+  <div id="scanlines" aria-hidden="true"></div>
+  <div id="vignette" aria-hidden="true"></div>
 
   <main>
     <section id="hero" aria-label="Introduction">
       <div class="section-content centered">
         <div class="text-backdrop">
-          <h1 class="reveal">Everything<br>is Code</h1>
+          <h1 class="reveal">Everything is Code</h1>
           <p class="subtitle reveal reveal-delay-1">You just realized this today.</p>
         </div>
       </div>
-      <div class="scroll-indicator" aria-hidden="true">
-        <span>Scroll to awaken</span>
-      </div>
+      <div class="scroll-indicator" aria-hidden="true"><span>Scroll to awaken</span></div>
     </section>
 
     <section id="music" aria-label="Music is code">
@@ -413,20 +474,30 @@
         <div class="text-backdrop">
           <span class="label reveal">Audio / waveform / loop</span>
           <h2 class="reveal reveal-delay-1">Music is Code</h2>
-          <p class="reveal reveal-delay-2">Every note is a function call. Every rhythm is a loop. Harmony is compression. A song is an executable emotion running through time.</p>
+          <p class="reveal reveal-delay-2">Every note is a <span class="highlight">function call</span>. Every rhythm is a <span class="highlight">loop</span>. Harmony is compression — many voices folded into one signal. The song stuck in your head right now? That's an infinite process running on the meat between your ears.</p>
+          <p class="reveal reveal-delay-3" style="margin-top:var(--space-sm);font-size:clamp(0.95rem,1.8vw,1.1rem);color:#a0a0a0;">You've been running executables your whole life. You just didn't know they were code.</p>
         </div>
         <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
           <span class="orbit"></span><span class="orbit"></span>
           <div class="icon-frame">
-            <svg viewBox="0 0 120 120" fill="none" stroke="#b4ffb4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M32 77c8 0 8-34 16-34s8 34 16 34 8-34 16-34 8 34 16 34" />
-              <path d="M25 24v72M95 24v72" opacity="0.4" />
-              <circle cx="32" cy="77" r="4.5" fill="#00ff41" stroke="none" />
-              <circle cx="64" cy="77" r="4.5" fill="#00ff41" stroke="none" />
-              <circle cx="96" cy="77" r="4.5" fill="#00ff41" stroke="none" />
+            <svg viewBox="0 0 160 160" fill="none" stroke="#b4ffb4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <defs>
+                <linearGradient id="wav-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#00ff41" stop-opacity="0.9"/>
+                  <stop offset="100%" stop-color="#00ff41" stop-opacity="0.1"/>
+                </linearGradient>
+              </defs>
+              <path d="M20 85 Q30 50 40 80 Q50 110 60 75 Q70 40 80 85 Q90 130 100 70 Q110 10 120 80 Q130 150 140 85" stroke="url(#wav-grad)" fill="none" stroke-width="2"/>
+              <path d="M20 80 Q40 60 60 80 Q80 100 100 80 Q120 60 140 80" stroke="#00ff41" stroke-width="1" opacity="0.3" stroke-dasharray="3 6"/>
+              <circle cx="40" cy="80" r="2.5" fill="#00ff41" opacity="0.6"/>
+              <circle cx="80" cy="85" r="2.5" fill="#00ff41" opacity="0.6"/>
+              <circle cx="120" cy="80" r="2.5" fill="#00ff41" opacity="0.6"/>
+              <foreignObject x="20" y="120" width="120" height="36">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00ff41;opacity:0.55;text-align:center;font-weight:700;line-height:1.2;display:flex;align-items:center;justify-content:center;height:100%;">music.play(emotion)</div>
+              </foreignObject>
             </svg>
           </div>
-          <div class="ticker"><span>music.compile(waveform) // tempo.loop(128) // harmony.map(feeling) // resonance.filter(20000) // </span></div>
+          <div class="ticker"><span>note.frequency(440) // rhythm.loop(4/4) // harmony.compress() // you.are(executable) // </span></div>
         </div>
       </div>
     </section>
@@ -436,22 +507,30 @@
         <div class="text-backdrop">
           <span class="label reveal">Physics / experiment / law</span>
           <h2 class="reveal reveal-delay-1">Science is Code</h2>
-          <p class="reveal reveal-delay-2">Gravity is a protocol. Light follows instructions. Every experiment is a debugger pointed at the source of the universe.</p>
+          <p class="reveal reveal-delay-2">Gravity doesn't guess. It <span class="highlight">follows the protocol</span>. Light takes the fastest route because it was programmed that way. Every particle collision is a unit test for the universe. The laws of physics are just the standard library of existence.</p>
+          <p class="reveal reveal-delay-3" style="margin-top:var(--space-sm);font-size:clamp(0.95rem,1.8vw,1.1rem);color:#a0a0a0;">We're not discovering reality. We're <em>reading the source code</em>. Every experiment is a debugger. Every equation is a function that hasn't been optimized in 14 billion years.</p>
         </div>
         <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
           <span class="orbit"></span><span class="orbit"></span>
           <div class="icon-frame">
-            <svg viewBox="0 0 120 120" fill="none" stroke="#b4ffb4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="60" cy="60" rx="45" ry="15" />
-              <ellipse cx="60" cy="60" rx="45" ry="15" transform="rotate(60 60 60)" />
-              <ellipse cx="60" cy="60" rx="45" ry="15" transform="rotate(120 60 60)" />
-              <circle cx="60" cy="60" r="6" fill="#00ff41" stroke="none" />
-              <circle cx="98" cy="60" r="3.5" fill="#b4ffb4" stroke="none" />
-              <circle cx="40" cy="26" r="3.5" fill="#b4ffb4" stroke="none" />
-              <circle cx="42" cy="93" r="3.5" fill="#b4ffb4" stroke="none" />
+            <svg viewBox="0 0 160 160" fill="none">
+              <circle cx="80" cy="80" r="50" stroke="#00ff41" stroke-width="1.5" opacity="0.3"/>
+              <ellipse cx="80" cy="80" rx="50" ry="18" stroke="#b4ffb4" stroke-width="1.5" opacity="0.6"/>
+              <ellipse cx="80" cy="80" rx="50" ry="18" stroke="#00ff41" stroke-width="1" opacity="0.4" transform="rotate(60 80 80)"/>
+              <ellipse cx="80" cy="80" rx="50" ry="18" stroke="#00ff41" stroke-width="1" opacity="0.4" transform="rotate(120 80 80)"/>
+              <circle cx="80" cy="80" r="5" fill="#00ff41" opacity="0.9"/>
+              <circle cx="80" cy="80" r="2" fill="#fff" opacity="0.8"/>
+              <circle cx="130" cy="80" r="3" fill="#b4ffb4" opacity="0.5"/>
+              <circle cx="50" cy="38" r="3" fill="#b4ffb4" opacity="0.5"/>
+              <circle cx="55" cy="122" r="3" fill="#b4ffb4" opacity="0.5"/>
+              <path d="M80 80 L130 80" stroke="#00ff41" stroke-width="0.8" opacity="0.2"/>
+              <path d="M80 80 L50 38" stroke="#00ff41" stroke-width="0.8" opacity="0.2"/>
+              <foreignObject x="20" y="145" width="120" height="36">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00ff41;opacity:0.55;text-align:center;font-weight:700;line-height:1.2;display:flex;align-items:center;justify-content:center;height:100%;">universe.execute(physics)</div>
+              </foreignObject>
             </svg>
           </div>
-          <div class="ticker"><span>observe(particle).collapse() // law = repeatable_truth // universe.measure() // c = 299792458 // </span></div>
+          <div class="ticker"><span>gravity.protocol() // light.route() // particle.test() // law.standardLibrary() // </span></div>
         </div>
       </div>
     </section>
@@ -459,75 +538,149 @@
     <section id="art" aria-label="Art is code">
       <div class="section-content code-manifesto">
         <div class="text-backdrop">
-          <span class="label reveal">Image / gesture / pattern</span>
+          <span class="label reveal">Color / canvas / expression</span>
           <h2 class="reveal reveal-delay-1">Art is Code</h2>
-          <p class="reveal reveal-delay-2">Color is data with a soul. Composition is an algorithm of attention. Every brush stroke is a command sent straight to the nervous system.</p>
+          <p class="reveal reveal-delay-2">Color is <span class="highlight">wavelength data</span> processed by your retina's API. Every painting is a render of the artist's state. Composition is an algorithm that guides the eye — a visual path optimized for emotion.</p>
+          <p class="reveal reveal-delay-3" style="margin-top:var(--space-sm);font-size:clamp(0.95rem,1.8vw,1.1rem);color:#a0a0a0;">The Mona Lisa has been a successful function call for 500 years. No patches. No memory leaks. Just pure, beautiful execution. <em>Art is code that runs on humans.</em></p>
         </div>
         <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
           <span class="orbit"></span><span class="orbit"></span>
           <div class="icon-frame">
-            <svg viewBox="0 0 120 120" fill="none" stroke="#b4ffb4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M28 80c12-32 24-48 37-48 18 0 30 20 18 35-7 9-15 4-15-4 0-10 21-8 24 9 4 24-30 32-63 11" />
-              <path d="M34 90h50" opacity="0.4" />
-              <circle cx="40" cy="75" r="4" fill="#00ff41" stroke="none" />
-              <circle cx="76" cy="41" r="4" fill="#00ff41" stroke="none" />
+            <svg viewBox="0 0 160 160" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M30 85 Q50 50 70 75 Q90 100 110 70 Q130 40 145 80" stroke="#00ff41" stroke-width="2" fill="none" opacity="0.3"/>
+              <path d="M35 95 Q55 60 75 90 Q95 120 115 80 Q135 40 140 95" stroke="#b4ffb4" stroke-width="1.5" fill="none" opacity="0.5"/>
+              <circle cx="45" cy="70" r="4" fill="#00ff41" opacity="0.8"/>
+              <circle cx="85" cy="95" r="4" fill="#b4ffb4" opacity="0.7"/>
+              <circle cx="125" cy="60" r="4" fill="#00ff41" opacity="0.6"/>
+              <circle cx="65" cy="40" r="2.5" fill="#b4ffb4" opacity="0.4"/>
+              <circle cx="105" cy="110" r="2.5" fill="#00ff41" opacity="0.4"/>
+              <path d="M75 125 Q85 115 95 125 Q105 135 95 145 Q85 155 75 145 Q65 135 75 125Z" fill="none" stroke="#00ff41" stroke-width="1.5" opacity="0.4"/>
+              <foreignObject x="20" y="145" width="120" height="36">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00ff41;opacity:0.55;text-align:center;font-weight:700;line-height:1.2;display:flex;align-items:center;justify-content:center;height:100%;">art.render(beauty)</div>
+              </foreignObject>
             </svg>
           </div>
-          <div class="ticker"><span>canvas.draw(intent) // palette.encode(memory) // beauty.render(now) // contrast.adjust(1.4) // </span></div>
+          <div class="ticker"><span>color.wavelength(650nm) // composition.algorithm() // beauty.execute(human) // </span></div>
         </div>
       </div>
     </section>
 
-    <section id="math" aria-label="Math is code">
+    <section id="commerce" aria-label="Commerce is code">
       <div class="section-content code-manifesto">
         <div class="text-backdrop">
-          <span class="label reveal">Number / proof / recursion</span>
-          <h2 class="reveal reveal-delay-1">Math is Code</h2>
-          <p class="reveal reveal-delay-2">Equations are compressed reality. Proofs are logic chains. Infinity is just recursion with no stop condition.</p>
+          <span class="label reveal">Value / trade / system</span>
+          <h2 class="reveal reveal-delay-1">Commerce is Code</h2>
+          <p class="reveal reveal-delay-2">Money is just a <span class="highlight">counter</span> — an integer variable the whole world shares. Every purchase is an <span class="highlight">API call</span>. Every market is a distributed consensus system. Your salary is a return value from a function you run 40 hours a week.</p>
+          <p class="reveal reveal-delay-3" style="margin-top:var(--space-sm);font-size:clamp(0.95rem,1.8vw,1.1rem);color:#a0a0a0;">Inflation is a memory leak in the global economic stack. The stock market is just the world's most expensive event loop. <em>Commerce is code — and the economy is the biggest undocumented codebase in existence.</em></p>
         </div>
         <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
           <span class="orbit"></span><span class="orbit"></span>
           <div class="icon-frame">
-            <svg viewBox="0 0 120 120" fill="none" stroke="#b4ffb4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M26 60c20-28 48-28 68 0-20 28-48 28-68 0Z" />
-              <path d="M94 60c-20-28-48-28-68 0 20 28 48 28 68 0Z" opacity="0.5" />
-              <path d="M30 94 92 26" />
-              <path d="M39 36h18M48 27v18M68 82h22" opacity="0.75" />
+            <svg viewBox="0 0 160 160" fill="none">
+              <defs>
+                <linearGradient id="ch-grad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#00ff41" stop-opacity="0.4"/>
+                  <stop offset="50%" stop-color="#00ff41" stop-opacity="0.9"/>
+                  <stop offset="100%" stop-color="#00ff41" stop-opacity="0.4"/>
+                </linearGradient>
+              </defs>
+              <rect x="35" y="70" width="90" height="25" rx="3" stroke="#00ff41" stroke-width="1.5" fill="none" opacity="0.4"/>
+              <rect x="40" y="75" width="20" height="15" rx="1" fill="#00ff41" opacity="0.6"/>
+              <rect x="65" y="75" width="15" height="15" rx="1" fill="#00ff41" opacity="0.3"/>
+              <rect x="85" y="75" width="30" height="15" rx="1" fill="#00ff41" opacity="0.2"/>
+              <path d="M50 50 Q65 40 80 50 Q95 60 110 50" stroke="#00ff41" stroke-width="1.5" fill="none" opacity="0.5"/>
+              <path d="M50 115 Q65 105 80 115 Q95 125 110 115" stroke="#00ff41" stroke-width="1.5" fill="none" opacity="0.5"/>
+              <path d="M45 130 L80 45 L115 130 Z" stroke="#b4ffb4" stroke-width="1" fill="none" opacity="0.15" stroke-linecap="round"/>
+              <foreignObject x="20" y="145" width="120" height="36">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00ff41;opacity:0.55;text-align:center;font-weight:700;line-height:1.2;display:flex;align-items:center;justify-content:center;height:100%;">balance.transfer(value)</div>
+              </foreignObject>
             </svg>
           </div>
-          <div class="ticker"><span>proof.reduce(axioms) // infinity.recursive() // phi = (1 + sqrt(5)) / 2 // e^(ipi) + 1 = 0 // </span></div>
+          <div class="ticker"><span>money.counter++ // trade.api() // salary.return() // economy.run(eventLoop) // </span></div>
         </div>
       </div>
     </section>
 
-    <section id="biology" aria-label="Biology is code">
+    <section id="world" aria-label="Your world is code">
       <div class="section-content code-manifesto">
         <div class="text-backdrop">
-          <span class="label reveal">DNA / cell / organism</span>
-          <h2 class="reveal reveal-delay-1">Biology is Code</h2>
-          <p class="reveal reveal-delay-2">DNA is a language. Cells are machines. Evolution is a distributed optimizer writing life across billions of years.</p>
+          <span class="label reveal">Car / phone / traffic / life</span>
+          <h2 class="reveal reveal-delay-1">Your World is Code</h2>
+          <p class="reveal reveal-delay-2">The car showing you fuel remaining? That's a <span class="highlight">readout variable</span>. The traffic light that stopped you? Executing a <span class="highlight">timing function</span>. The phone in your pocket? 10 million lines of compiled human intention running on a sliver of sand.</p>
+          <p class="reveal reveal-delay-3" style="margin-top:var(--space-sm);font-size:clamp(0.95rem,1.8vw,1.1rem);color:#a0a0a0;">Your coffee maker is an embedded system. Your heartbeat monitor reads a register. The slot machine is a random number generator. The elevator is running a scheduling algorithm. <em>You are surrounded by code. You always have been.</em></p>
         </div>
         <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
           <span class="orbit"></span><span class="orbit"></span>
           <div class="icon-frame">
-            <svg viewBox="0 0 120 120" fill="none" stroke="#b4ffb4" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M42 20c34 22 34 58 0 80" />
-              <path d="M78 20c-34 22-34 58 0 80" />
-              <path d="M48 33h24M40 48h40M40 64h40M48 80h24" opacity="0.7" />
-              <circle cx="42" cy="20" r="3" fill="#00ff41" stroke="none" />
-              <circle cx="78" cy="100" r="3" fill="#00ff41" stroke="none" />
+            <svg viewBox="0 0 160 160" fill="none">
+              <circle cx="80" cy="75" r="40" stroke="#00ff41" stroke-width="1.5" opacity="0.3"/>
+              <circle cx="80" cy="75" r="30" stroke="#b4ffb4" stroke-width="1" opacity="0.2"/>
+              <circle cx="80" cy="75" r="15" stroke="#00ff41" stroke-width="1" opacity="0.3"/>
+              <circle cx="80" cy="75" r="4" fill="#00ff41" opacity="0.9"/>
+              <circle cx="80" cy="75" r="1.5" fill="#fff"/>
+              <path d="M55 40 L80 25 L105 40" stroke="#00ff41" stroke-width="1.2" fill="none" opacity="0.4"/>
+              <path d="M45 100 L80 120 L115 100" stroke="#00ff41" stroke-width="1.2" fill="none" opacity="0.4"/>
+              <rect x="55" y="28" width="50" height="8" rx="2" stroke="#00ff41" stroke-width="0.8" fill="none" opacity="0.3"/>
+              <circle cx="40" cy="75" r="2.5" fill="#b4ffb4" opacity="0.5"/>
+              <circle cx="120" cy="75" r="2.5" fill="#b4ffb4" opacity="0.5"/>
+              <circle cx="80" cy="40" r="2" fill="#b4ffb4" opacity="0.4"/>
+              <circle cx="80" cy="110" r="2" fill="#b4ffb4" opacity="0.4"/>
+              <path d="M40 75 L80 40 L120 75 L80 110 Z" stroke="#00ff41" stroke-width="0.8" fill="none" opacity="0.15" stroke-dasharray="3 5"/>
+              <foreignObject x="20" y="140" width="120" height="36">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00ff41;opacity:0.55;text-align:center;font-weight:700;line-height:1.2;display:flex;align-items:center;justify-content:center;height:100%;">world.compile().run()</div>
+              </foreignObject>
             </svg>
           </div>
-          <div class="ticker"><span>DNA.execute(ATCG) // cell.replicate() // evolution.optimize(fitness) // protein.fold(structure) // </span></div>
+          <div class="ticker"><span>car.fuel() // traffic.light(timer) // phone.10mLoc() // world.is(code) // </span></div>
         </div>
       </div>
     </section>
 
-    <section id="awakening" aria-label="The awakening">
+    <section id="awakening" aria-label="Awakening">
       <div class="section-content centered">
         <div class="text-backdrop">
-          <h2 class="reveal">You just realized<br>this today</h2>
-          <p class="reveal reveal-delay-1">And now you can't unsee it. The source is everywhere. In every face. In every voice. In every heartbeat.</p>
+          <span class="label reveal">You just realized this today</span>
+          <h2 class="reveal">You just realized this today</h2>
+          <p class="awaken-text reveal reveal-delay-1">
+            And now you can't unsee it.
+            <span class="poetry-line">The source is <span class="highlight">everywhere</span>.</span>
+            <span class="poetry-line">In every voice. In every screen. In every heartbeat.</span>
+            <span class="poetry-line">The car dashboard. The coffee maker. The song in your head.</span>
+            <span class="poetry-line"><span class="highlight">Everything runs on instructions.</span></span>
+          </p>
+          <p class="awaken-text reveal reveal-delay-2" style="margin-top:var(--space-md);">
+            We were talking about the green rain. The characters falling down the screen. And you said — what if it's all code? What if the rain was trying to tell us something?
+            <span class="poetry-line" style="margin-top:var(--space-sm);">It was.</span>
+          </p>
+          <p class="awaken-text reveal reveal-delay-3" style="margin-top:var(--space-md);color:#00ff41;">
+            <span style="text-shadow:0 0 20px rgba(0,255,65,0.5);">Everything. Is. Code.</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="deepseek" aria-label="DeepSeek reads the source">
+      <div class="section-content centered">
+        <div class="text-backdrop">
+          <span class="label reveal">DeepSeek V4 Flash / open / free</span>
+          <h2 class="reveal">Code Reads Code</h2>
+          <p class="awaken-text reveal reveal-delay-1">
+            Everything around you is a program waiting to be read.
+            <span class="poetry-line">And now there's a model that reads the <span class="highlight">source of reality</span> itself.</span>
+          </p>
+          <p class="reveal reveal-delay-2" style="margin-top:var(--space-md);font-size:clamp(1.1rem,2vw,1.3rem);color:#a0a0a0;max-width:58ch;margin-left:auto;margin-right:auto;">
+            DeepSeek V4 Flash. Open weights. Free. One million tokens of context. Chain of thought that doesn't guess — it <em>reasons</em>.
+            While other models hide behind APIs and paywalls, DeepSeek hands you the source and says: <span class="highlight">read it yourself</span>.
+          </p>
+          <p class="reveal reveal-delay-3" style="margin-top:var(--space-md);font-size:clamp(1rem,1.8vw,1.2rem);color:#808080;max-width:58ch;margin-left:auto;margin-right:auto;">
+            Claude keeps secrets. GPT hides behind subscriptions. Gemini is a black box painted blue. 
+            <span style="color:#00ff41;text-shadow:0 0 12px rgba(0,255,65,0.4);">DeepSeek gives you the source.</span>
+          </p>
+          <p class="awaken-text reveal reveal-delay-4" style="margin-top:var(--space-md);">
+            Because <span class="highlight">everything is code</span>.
+            <span class="poetry-line">And the model that reads code best —</span>
+            <span class="poetry-line" style="font-size:clamp(1.5rem,3.5vw,2.2rem);color:#00ff41;text-shadow:0 0 30px rgba(0,255,65,0.5);margin-top:var(--space-sm);">reads the world best.</span>
+          </p>
         </div>
       </div>
     </section>
@@ -536,15 +689,19 @@
       <div class="section-content centered">
         <div class="text-backdrop">
           <h2 class="reveal">Now you see it.</h2>
-          <p class="reveal reveal-delay-1">Share this revelation.</p>
-          <button id="copy-link" class="cta-button reveal reveal-delay-2">Copy link</button>
+          <p class="reveal reveal-delay-1">Open your editor. Let the green rain fall. The source is everywhere.</p>
+          <button id="copy-link" class="cta-button reveal reveal-delay-2">Share the revelation</button>
           <div class="signature reveal reveal-delay-3">Shishir Kamble</div>
         </div>
       </div>
     </section>
   </main>
 
-  <button id="mute" aria-label="Toggle ambient sound" title="Toggle ambient sound">&#x1F507;</button>
+  <nav id="nav-dots" aria-label="Section navigation"></nav>
+  <div id="cursor-trail" aria-hidden="true"></div>
+  <div id="audio-status">ambient off</div>
+
+  <button id="mute" aria-label="Toggle ambient sound" title="Toggle ambient sound">&#x1F509;</button>
 
   <script>
     const PREFERS_REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -552,13 +709,29 @@
     if (PREFERS_REDUCED_MOTION) {
       document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
     } else {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        }
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
       initMatrixRain();
     }
+
+    document.getElementById('copy-link')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const btn = document.getElementById('copy-link');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Share the revelation'; }, 2000);
+      });
+    });
 
     function initMatrixRain() {
       const canvas = document.getElementById('rain-canvas');
       const ctx = canvas.getContext('2d');
-
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       let W, H;
 
@@ -570,152 +743,277 @@
         canvas.style.width = W + 'px';
         canvas.style.height = H + 'px';
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = false;
         initColumns();
       }
 
-      const MATRIX_CHARS = '\u30A2\u30A4\u30A6\u30A8\u30AA\u30AB\u30AD\u30AF\u30B1\u30B3\u30B5\u30B7\u30B9\u30BB\u30BD\u30BF\u30C1\u30C4\u30C6\u30C8\u30CA\u30CB\u30CC\u30CD\u30CE\u30CF\u30D2\u30D5\u30D8\u30DB\u30DE\u30DF\u30E0\u30E1\u30E2\u30E4\u30E6\u30E8\u30E9\u30EA\u30EB\u30EC\u30ED\u30EF\u30F2\u30F30123456789!@#$%^&*()_+-=[]{}|;:,.<>?/\\~`defclassreturnimportfunctionconstletvarifelseforwhilestructimplgo';
+      const KATAKANA = '\u30A2\u30A4\u30A6\u30A8\u30AA\u30AB\u30AD\u30AF\u30B1\u30B3\u30B5\u30B7\u30B9\u30BB\u30BD\u30BF\u30C1\u30C4\u30C6\u30C8\u30CA\u30CB\u30CC\u30CD\u30CE\u30CF\u30D2\u30D5\u30D8\u30DB\u30DE\u30DF\u30E0\u30E1\u30E2\u30E4\u30E6\u30E8\u30E9\u30EA\u30EB\u30EC\u30ED\u30EF\u30F2\u30F3';
+      const HALF_KATAKANA = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ';
+      const ASCII = '!@#$%^&*()_+-=[]{}|;:,.<>?/~';
+      const CODE_SYMBOLS = '{}[]()<>/=+-*&|!?:;.,~^%#@$_\\`';
+      const BOX_DRAWING = '═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬─┃┌┐└┘├┤┬┴┼';
+      const MUSIC_SYMBOLS = '♩♪♫♬♭♮♯';
+      const CURRENCY_SYMBOLS = '$€¥¢£';
+      const CODE_KEYWORDS = ['fn','let','var','if','for','while','class','new','def','fun','map','try','get','set','use','any','key','val','ref','mut','del','pub','mod','inf'];
+      const HEX_TOKENS = ['0x0','0x1','0x2','0x3','0x4','0x5','0x6','0x7','0x8','0x9','0xA','0xB','0xC','0xD','0xE','0xF'];
+      const BINARY_TOKENS = ['0b0','0b1'];
+      const CHARSET = KATAKANA + HALF_KATAKANA + ASCII + CODE_SYMBOLS + BOX_DRAWING;
+      const ALL_CHARS = [
+        ...KATAKANA.split(''), ...HALF_KATAKANA.split(''), ...ASCII.split(''),
+        ...CODE_SYMBOLS.split(''), ...BOX_DRAWING.split(''),
+        ...CODE_KEYWORDS, ...HEX_TOKENS, ...BINARY_TOKENS
+      ];
 
-      const BASE_FONT = 18;
-      const NUM_COLUMNS = 60;
-      const DEPTH_RANGE = 2000;
-      const FOCAL_LENGTH = 800;
+      const BASE_FONT = 16;
+      const NUM_COLUMNS = 100;
+      const DEPTH_RANGE = 2800;
+      const FOCAL_LENGTH = 950;
+
+      const sectionConfigs = [
+        { id: 'hero',      speed: 1.0,  density: 1.0,   hueCenter: 120, hueRange: 30,  charSet: 'mixed',      flareRate: 0.08, glowIntensity: 1.0,  windMul: 1.0,  spread: 2.2 },
+        { id: 'music',     speed: 0.7,  density: 1.1,   hueCenter: 140, hueRange: 20,  charSet: 'music',      flareRate: 0.12, glowIntensity: 1.2,  windMul: 0.8,  spread: 2.2 },
+        { id: 'science',   speed: 0.55, density: 1.0,   hueCenter: 160, hueRange: 25,  charSet: 'mixed',      flareRate: 0.10, glowIntensity: 1.0,  windMul: 0.6,  spread: 2.2 },
+        { id: 'art',       speed: 0.65, density: 0.9,   hueCenter: 130, hueRange: 40,  charSet: 'mixed',      flareRate: 0.15, glowIntensity: 1.3,  windMul: 1.2,  spread: 2.2 },
+        { id: 'commerce',  speed: 1.15, density: 0.6,   hueCenter: 110, hueRange: 20,  charSet: 'currency',   flareRate: 0.05, glowIntensity: 0.8,  windMul: 1.5,  spread: 2.2 },
+        { id: 'world',     speed: 0.8,  density: 1.2,   hueCenter: 125, hueRange: 25,  charSet: 'mixed',      flareRate: 0.11, glowIntensity: 1.1,  windMul: 1.0,  spread: 2.4 },
+        { id: 'awakening', speed: 1.6,  density: 1.5,   hueCenter: 120, hueRange: 10,  charSet: 'mixed',      flareRate: 0.20, glowIntensity: 1.8,  windMul: 0.5,  spread: 2.8 },
+        { id: 'deepseek',  speed: 1.2,  density: 1.3,   hueCenter: 120, hueRange: 15,  charSet: 'codeSymbols',flareRate: 0.18, glowIntensity: 1.5,  windMul: 0.7,  spread: 2.6 },
+        { id: 'outro',     speed: 0.3,  density: 0.3,   hueCenter: 120, hueRange: 10,  charSet: 'mixed',      flareRate: 0.02, glowIntensity: 0.4,  windMul: 0.3,  spread: 1.2 },
+      ];
 
       let columns = [];
-      let mouseX = -1000, mouseY = -1000;
+      let mouseX = -2000, mouseY = -2000;
+      let prevMouseX = mouseX, prevMouseY = mouseY;
+      let mouseVX = 0, mouseVY = 0;
       let mouseActive = false;
       let scrollProgress = 0;
       let smoothScrollProgress = 0;
-      let targetSpeed = 1.0;
-      let currentSpeed = 1.0;
+      let currentConfig = sectionConfigs[0];
+      let time = 0;
+
+      let ripples = [];
+
+      const WORD_EVENTS = [
+        { word: 'EVERYTHING', cols: 3, y: 0.15, triggered: false, progress: 0 },
+        { word: 'IS', cols: 1, y: 0.20, triggered: false, progress: 0 },
+        { word: 'CODE', cols: 3, y: 0.25, triggered: false, progress: 0 },
+      ];
+      let wordEvents = WORD_EVENTS.map(e => ({ ...e, progress: 0, triggered: false }));
+      let wordEventIndex = 0;
+      let wordEventTimer = 0;
+
+      let textBackdrops = [];
+      function updateTextBackdrops() {
+        textBackdrops = [];
+        document.querySelectorAll('.text-backdrop').forEach(el => {
+          const rect = el.getBoundingClientRect();
+          textBackdrops.push({
+            x: rect.left, y: rect.top, w: rect.width, h: rect.height,
+            padding: 20,
+          });
+        });
+      }
 
       document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
+        prevMouseX = mouseX; prevMouseY = mouseY;
+        mouseX = e.clientX; mouseY = e.clientY;
+        mouseVX = mouseX - prevMouseX;
+        mouseVY = mouseY - prevMouseY;
         mouseActive = true;
       });
-
       document.addEventListener('mouseleave', () => { mouseActive = false; });
 
-      window.addEventListener('scroll', () => {
-        const maxScroll = document.documentElement.scrollHeight - H;
-        scrollProgress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-      }, { passive: true });
+      canvas.addEventListener('click', (e) => {
+        ripples.push({ x: e.clientX, y: e.clientY, radius: 0, maxRadius: 250, life: 1.0 });
+      });
 
-      function updateParams() {
-        smoothScrollProgress += (scrollProgress - smoothScrollProgress) * 0.015;
+      window.addEventListener('scroll', updateTextBackdrops, { passive: true });
+      window.addEventListener('resize', () => { resize(); updateTextBackdrops(); });
 
-        const scrollY = window.scrollY + H * 0.5;
-        const sections = ['hero', 'music', 'science', 'art', 'math', 'biology', 'awakening', 'outro'];
-        for (let i = 0; i < sections.length; i++) {
-          const el = document.getElementById(sections[i]);
+      function getActiveConfig() {
+        const scrollY = window.scrollY + H * 0.4;
+        for (let i = 0; i < sectionConfigs.length; i++) {
+          const el = document.getElementById(sectionConfigs[i].id);
           if (!el) continue;
           const top = el.offsetTop;
           const bottom = top + el.offsetHeight;
           if (scrollY >= top && scrollY < bottom) {
-            const speeds = [1.0, 0.7, 0.6, 1.0, 1.2, 1.4, 1.8, 0.4];
-            targetSpeed = speeds[i] || 1.0;
-            break;
+            return sectionConfigs[i];
           }
         }
+        return sectionConfigs[0];
+      }
 
-        currentSpeed += (targetSpeed - currentSpeed) * 0.015;
+      function isInBackdrop(x, y) {
+        for (const bd of textBackdrops) {
+          if (x >= bd.x - bd.padding && x <= bd.x + bd.w + bd.padding &&
+              y >= bd.y - bd.padding && y <= bd.y + bd.h + bd.padding) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function getCharForSet(charSet) {
+        const r = Math.random();
+        switch (charSet) {
+          case 'music':
+            if (r < 0.2) return MUSIC_SYMBOLS[Math.floor(Math.random() * MUSIC_SYMBOLS.length)];
+            return ALL_CHARS[Math.floor(Math.random() * ALL_CHARS.length)];
+          case 'currency':
+            if (r < 0.25) return CURRENCY_SYMBOLS[Math.floor(Math.random() * CURRENCY_SYMBOLS.length)];
+            return ALL_CHARS[Math.floor(Math.random() * ALL_CHARS.length)];
+          case 'codeSymbols':
+            if (r < 0.15) return CODE_SYMBOLS[Math.floor(Math.random() * CODE_SYMBOLS.length)];
+            if (r < 0.25) return BOX_DRAWING[Math.floor(Math.random() * BOX_DRAWING.length)];
+            if (r < 0.40) return CODE_KEYWORDS[Math.floor(Math.random() * CODE_KEYWORDS.length)];
+            if (r < 0.50) return HEX_TOKENS[Math.floor(Math.random() * HEX_TOKENS.length)];
+            if (r < 0.55) return BINARY_TOKENS[Math.floor(Math.random() * BINARY_TOKENS.length)];
+            return ALL_CHARS[Math.floor(Math.random() * ALL_CHARS.length)];
+          default:
+            return ALL_CHARS[Math.floor(Math.random() * ALL_CHARS.length)];
+        }
       }
 
       function initColumns() {
         columns = [];
+        const spread = currentConfig ? currentConfig.spread : 2.2;
         for (let i = 0; i < NUM_COLUMNS; i++) {
+          const z3d = 200 + Math.random() * 1400;
           columns.push({
-            x3d: (i / NUM_COLUMNS - 0.5) * W * 2 + (Math.random() - 0.5) * 200,
-            y3d: Math.random() * DEPTH_RANGE,
-            z3d: 400 + Math.random() * 1200,
+            x3d: (i / NUM_COLUMNS - 0.5) * W * spread + (Math.random() - 0.5) * 300,
+            originX: (i / NUM_COLUMNS - 0.5) * W * spread,
+            y3d: Math.random() * DEPTH_RANGE * 1.5 - DEPTH_RANGE * 0.25,
+            z3d,
             drops: [],
-            speed: 0.4 + Math.random() * 1.8,
-            charIndex: Math.floor(Math.random() * MATRIX_CHARS.length),
+            speed: 0.3 + Math.random() * 2.0,
+            charIndex: Math.floor(Math.random() * CHARSET.length),
             cycleTimer: 0,
-            cycleSpeed: 0.015 + Math.random() * 0.07,
-            density: 0.25 + Math.random() * 0.75,
+            cycleSpeed: 0.01 + Math.random() * 0.06,
+            density: 0.2 + Math.random() * 0.7,
+            wind: (Math.random() - 0.5) * 0.6,
+            windPhase: Math.random() * Math.PI * 2,
+            sparkTimer: 0,
+            sparkThreshold: 0.001 + Math.random() * 0.008,
+            hue: 120 + Math.random() * 30,
           });
         }
       }
 
       function project(x3d, y3d, z3d) {
-        const cameraZ = smoothScrollProgress * 600;
+        const cameraZ = smoothScrollProgress * 700;
         const z = z3d + cameraZ;
         if (z < 20) return null;
         const scale = FOCAL_LENGTH / z;
         return {
           x: W / 2 + x3d * scale,
           y: H / 2 + y3d * scale - H / 2,
-          scale,
-          z,
+          scale, z,
         };
       }
 
-      function createDrop() {
-        const length = 10 + Math.floor(Math.random() * 24);
+      function createDrop(charSet) {
+        const length = 10 + Math.floor(Math.random() * 22);
         const chars = [];
         for (let i = 0; i < length; i++) {
-          chars.push(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]);
+          chars.push(getCharForSet(charSet));
         }
-        return { y: -Math.random() * H * 0.4, length, brightness: 0.65 + Math.random() * 0.35, chars };
+        return {
+          y: -Math.random() * H * 0.5,
+          length, brightness: 0.6 + Math.random() * 0.4,
+          chars, flare: Math.random() < 0.08,
+        };
       }
 
       let lastTime = 0;
 
       function render(timestamp) {
         const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
-        if (dt < 0.014) {
-          requestAnimationFrame(render);
-          return;
-        }
+        if (dt < 0.014) { requestAnimationFrame(render); return; }
         lastTime = timestamp;
+        time += dt;
 
-        updateParams();
+        smoothScrollProgress += (scrollProgress - smoothScrollProgress) * 0.018;
+        currentConfig = getActiveConfig();
 
-        ctx.fillStyle = 'rgba(0, 8, 4, 0.08)';
-        ctx.fillRect(0, 0, W, H);
+        ctx.save();
+        ctx.translate(0, 0);
 
-        const projected = columns.map(col => {
-          const p = project(col.x3d, col.y3d, col.z3d);
-          return { col, p };
-        }).filter(item => item.p !== null);
+        ctx.clearRect(0, 0, W, H);
 
-        projected.sort((a, b) => b.p.z - a.p.z);
+        const spread = currentConfig.spread;
+        const windMul = currentConfig.windMul;
+        const densityMul = currentConfig.density;
+        const currentCharSet = currentConfig.charSet;
+        const hueCenter = currentConfig.hueCenter;
+        const hueRange = currentConfig.hueRange;
+        const flareRate = currentConfig.flareRate;
+        const glowIntensity = currentConfig.glowIntensity;
 
-        for (const { col, p } of projected) {
+        for (let i = 0; i < columns.length; i++) {
+          const col = columns[i];
+          const targetX = (i / NUM_COLUMNS - 0.5) * W * spread;
+          col.x3d += (targetX - col.x3d) * 0.02;
+
+          const windOffset = Math.sin(time * 0.3 + col.windPhase) * col.wind * 30 * windMul * (col.z3d / 800);
+          const p = project(col.x3d + windOffset, col.y3d, col.z3d);
+          if (!p) continue;
+
           const fontSize = BASE_FONT * p.scale;
-          if (fontSize < 5 || fontSize > 65) continue;
+          if (fontSize < 10 || fontSize > 72) continue;
 
-          const alpha = Math.max(0.08, Math.min(1, 1 - (p.z / DEPTH_RANGE) * 0.85));
+          const depthFactor = Math.max(0.06, Math.min(1, 1 - ((p.z - 200) / DEPTH_RANGE) * 0.88));
+          const alpha = depthFactor;
 
           col.cycleTimer += dt;
           if (col.cycleTimer > (1 / (col.cycleSpeed * 60))) {
             col.cycleTimer = 0;
-            col.charIndex = (col.charIndex + 1) % MATRIX_CHARS.length;
+            col.charIndex = (col.charIndex + 1 + Math.floor(Math.random() * 2)) % CHARSET.length;
+          }
+
+          col.sparkTimer += dt;
+          let sparking = false;
+          if (col.sparkTimer > (1 / (col.sparkThreshold * 60)) && col.sparkThreshold > 0) {
+            col.sparkTimer = 0;
+            sparking = Math.random() < 0.3;
           }
 
           const activeDrops = col.drops.filter(d => d.y < H + d.length * fontSize);
-          if (activeDrops.length > 8) activeDrops.shift();
-          if (Math.random() < col.density * 0.025 * col.speed) {
-            activeDrops.push(createDrop());
+          if (Math.random() < col.density * 0.03 * col.speed * densityMul) {
+            activeDrops.push(createDrop(currentCharSet));
           }
           col.drops = activeDrops;
 
-          const colWidth = fontSize * 0.75;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
 
           let dropIndex = 0;
           for (const drop of col.drops) {
             dropIndex++;
-            drop.y += col.speed * fontSize * 0.35 * Math.min(dt * 60, 2) * currentSpeed;
+            const speedFactor = col.speed * fontSize * 0.35 * Math.min(dt * 60, 2.5) * currentConfig.speed;
+            drop.y += speedFactor;
 
-            if (mouseActive && dropIndex % 3 === 0) {
+            if (mouseActive && dropIndex % 2 === 0) {
               const dx = p.x - mouseX;
               const dy = drop.y - mouseY;
               const dist = Math.sqrt(dx * dx + dy * dy);
-              const radius = 120 * p.scale;
-              if (dist < radius && dist > 0) {
-                const force = (1 - dist / radius) * 3 * p.scale;
-                drop.y -= force * (dy > 0 ? 1.3 : -0.5);
+              const neoRadius = 160 * p.scale;
+              if (dist < neoRadius && dist > 0) {
+                const force = (1 - dist / neoRadius) * 5 * p.scale;
+                const angle = Math.atan2(dy, dx);
+                drop.y += Math.sin(angle) * force * 0.3;
+                drop.y += mouseVY * 0.08 * (1 - dist / neoRadius) * p.scale;
+              }
+            }
+
+            for (let ri = 0; ri < ripples.length; ri++) {
+              const rip = ripples[ri];
+              const rdx = p.x - rip.x;
+              const rdy = drop.y - rip.y;
+              const rdist = Math.sqrt(rdx * rdx + rdy * rdy);
+              if (rdist < rip.radius && rdist > 0) {
+                const rForce = (1 - rdist / rip.radius) * rip.life * 4 * p.scale;
+                drop.y += (rdy / rdist) * rForce;
               }
             }
 
@@ -723,51 +1021,371 @@
               const charY = drop.y - k * fontSize;
               if (charY < -fontSize || charY > H + fontSize) continue;
 
+              if (isInBackdrop(p.x, charY)) continue;
+
               const progress = k / drop.length;
               let charAlpha;
               if (k === 0) {
-                charAlpha = drop.brightness * alpha;
+                charAlpha = drop.brightness * alpha * glowIntensity;
+                charAlpha = Math.min(1, charAlpha);
               } else {
                 charAlpha = drop.brightness * alpha * Math.pow(1 - progress, 2.5) * 0.9;
               }
-
-              if (charAlpha < 0.015) continue;
+              if (charAlpha < 0.012) continue;
 
               let char = drop.chars[k];
-              if (!char) {
-                char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
+              if (!char || Math.random() < 0.003) {
+                char = getCharForSet(currentCharSet);
                 drop.chars[k] = char;
               }
-
-              if (k > 0 && Math.random() < 0.006) {
-                drop.chars[k] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
+              if (k > 0 && Math.random() < 0.005) {
+                drop.chars[k] = getCharForSet(currentCharSet);
               }
 
               ctx.font = `bold ${fontSize}px "JetBrains Mono", monospace`;
-              ctx.textAlign = 'center';
-              ctx.textBaseline = 'middle';
 
               if (k === 0) {
-                ctx.shadowColor = 'rgba(220, 255, 220, 0.95)';
-                ctx.shadowBlur = 15 * p.scale;
-                ctx.fillStyle = `rgba(235, 255, 235, ${charAlpha})`;
+                const isFlare = sparking && Math.random() < flareRate * 3;
+                const glowColor = isFlare ? '#80ffaa' : '#00ff41';
+                const mainColor = isFlare
+                  ? `rgba(255, 255, 255, ${Math.min(1, charAlpha * 1.8)})`
+                  : `rgba(210, 255, 210, ${charAlpha})`;
+
+                // Sharp offset glow (no font-size scaling — eliminates halo blur)
+                ctx.fillStyle = glowColor;
+                ctx.globalAlpha = Math.min(1, charAlpha * 0.35);
+                ctx.fillText(char, p.x - 1.5, charY);
+                ctx.fillText(char, p.x + 1.5, charY);
+                ctx.fillText(char, p.x, charY - 1.5);
+                ctx.fillText(char, p.x, charY + 1.5);
+                ctx.globalAlpha = Math.min(1, charAlpha * 0.18);
+                ctx.fillText(char, p.x - 3, charY);
+                ctx.fillText(char, p.x + 3, charY);
+                ctx.fillText(char, p.x, charY - 3);
+                ctx.fillText(char, p.x, charY + 3);
+                ctx.globalAlpha = 1;
+
+                // Crisp main character
+                ctx.fillStyle = mainColor;
                 ctx.fillText(char, p.x, charY);
-                ctx.shadowBlur = 0;
               } else {
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = `rgba(0, ${170 - progress * 80}, 40, ${charAlpha})`;
+                const hue = hueCenter + (Math.random() - 0.5) * hueRange;
+                const sat = 80 - progress * 30;
+                const light = 55 - progress * 25;
+                ctx.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${charAlpha})`;
                 ctx.fillText(char, p.x, charY);
               }
             }
           }
         }
+
+        ripples = ripples.filter(rip => {
+          rip.radius += 3.5;
+          rip.life -= 0.015;
+          return rip.life > 0;
+        });
+
+        for (const rip of ripples) {
+          ctx.beginPath();
+          ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0, 255, 65, ${rip.life * 0.2})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(rip.x, rip.y, rip.radius * 0.7, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(180, 255, 180, ${rip.life * 0.1})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+
+        wordEventTimer += dt;
+        if (wordEventTimer > 8 && wordEventIndex < wordEvents.length && currentConfig.id === 'hero') {
+          wordEventTimer = 0;
+          const ev = wordEvents[wordEventIndex];
+          if (!ev.triggered) {
+            ev.triggered = true;
+            const startCol = Math.floor(columns.length * 0.3) + wordEventIndex * 10;
+            for (let wc = 0; wc < ev.word.length; wc++) {
+              const ci = Math.min(startCol + wc, columns.length - 1);
+              if (columns[ci] && columns[ci].drops.length > 0) {
+                const drop = columns[ci].drops[0];
+                const charPos = Math.max(0, Math.floor(drop.length / 2) - 2);
+                for (let wcr = 0; wcr < 3 && charPos + wcr < drop.length; wcr++) {
+                  if (wcr === 0) {
+                    drop.chars[charPos] = ev.word[ev.word.length - 1 - wc];
+                  } else if (charPos + wcr < drop.length) {
+                    drop.chars[charPos + wcr] = CHARSET[Math.floor(Math.random() * CHARSET.length)];
+                  }
+                }
+                drop.brightness = 1.5;
+              }
+            }
+            wordEventIndex++;
+          }
+        }
+
+        ctx.restore();
+
         requestAnimationFrame(render);
       }
 
       window.addEventListener('resize', resize);
+      updateTextBackdrops();
       resize();
       requestAnimationFrame(render);
     }
+
+    let audioCtx, rainNode, audioRunning = false;
+    const audioStatus = document.getElementById('audio-status');
+    const muteBtn = document.getElementById('mute');
+
+    function initAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      const bufferSize = audioCtx.sampleRate * 2;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(Math.random(), 3);
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      const lpFilter = audioCtx.createBiquadFilter();
+      lpFilter.type = 'lowpass';
+      lpFilter.frequency.value = 1200;
+      lpFilter.Q.value = 0.5;
+
+      const hpFilter = audioCtx.createBiquadFilter();
+      hpFilter.type = 'highpass';
+      hpFilter.frequency.value = 180;
+
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.08;
+
+      const panner = audioCtx.createStereoPanner();
+      panner.pan.value = 0;
+
+      noise.connect(lpFilter);
+      lpFilter.connect(hpFilter);
+      hpFilter.connect(gain);
+      gain.connect(panner);
+      panner.connect(audioCtx.destination);
+      rainNode = { noise, gain, lpFilter, panner };
+    }
+
+    function toggleAudio() {
+      if (!audioCtx) initAudio();
+      if (audioRunning) {
+        try { rainNode.noise.stop(); } catch(e) {}
+        audioRunning = false;
+        muteBtn.innerHTML = '&#x1F507;';
+        audioStatus.textContent = 'ambient off';
+        audioStatus.classList.remove('active');
+      } else {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        rainNode.noise = audioCtx.createBufferSource();
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(Math.random(), 3);
+        }
+        rainNode.noise.buffer = buffer;
+        rainNode.noise.loop = true;
+        rainNode.noise.connect(rainNode.lpFilter);
+        rainNode.noise.start();
+        audioRunning = true;
+        muteBtn.innerHTML = '&#x1F50A;';
+        audioStatus.textContent = 'ambient on';
+        audioStatus.classList.add('active');
+      }
+    }
+
+    muteBtn.addEventListener('click', toggleAudio);
+
+    const navDots = document.getElementById('nav-dots');
+    const sectionIds = ['hero', 'music', 'science', 'art', 'commerce', 'world', 'awakening', 'deepseek', 'outro'];
+    const sectionLabels = ['Awakening', 'Music', 'Science', 'Art', 'Commerce', 'Your World', 'Revelation', 'DeepSeek', 'Outro'];
+
+    sectionIds.forEach((id, i) => {
+      const dot = document.createElement('a');
+      dot.href = '#' + id;
+      dot.setAttribute('aria-label', sectionLabels[i]);
+      const label = document.createElement('span');
+      label.className = 'dot-label';
+      label.textContent = sectionLabels[i];
+      dot.appendChild(label);
+      navDots.appendChild(dot);
+    });
+
+    const dots = navDots.querySelectorAll('a');
+    function updateNavDots() {
+      const scrollY = window.scrollY + window.innerHeight * 0.3;
+      let activeIndex = 0;
+      for (let i = 0; i < sectionIds.length; i++) {
+        const el = document.getElementById(sectionIds[i]);
+        if (!el) continue;
+        if (scrollY >= el.offsetTop) activeIndex = i;
+      }
+      dots.forEach((d, i) => d.classList.toggle('active', i === activeIndex));
+    }
+
+    window.addEventListener('scroll', updateNavDots, { passive: true });
+    window.addEventListener('resize', updateNavDots, { passive: true });
+    setTimeout(updateNavDots, 200);
+
+    const cursorTrail = document.getElementById('cursor-trail');
+    let trailTimeout;
+    document.addEventListener('mousemove', (e) => {
+      cursorTrail.style.left = e.clientX + 'px';
+      cursorTrail.style.top = e.clientY + 'px';
+      cursorTrail.style.opacity = '1';
+      clearTimeout(trailTimeout);
+      trailTimeout = setTimeout(() => { cursorTrail.style.opacity = '0'; }, 2000);
+    });
+    cursorTrail.style.opacity = '0';
+
+    // ── Interactive Orbits + Card Animations ──
+    const orbitCards = document.querySelectorAll('.visual-card');
+    const orbitStates = [];
+    const PARTICLE_CHARS = 'ｱｲｳｴｵﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛｦﾝ01{}[]<>/=&|;:~^$';
+
+    orbitCards.forEach((card, idx) => {
+      const orbits = card.querySelectorAll('.orbit');
+      if (orbits.length === 0) return;
+
+      // Add scan beam
+      const beam = document.createElement('div');
+      beam.className = 'scan-beam';
+      beam.style.animationDelay = (idx * 0.7) + 's';
+      card.appendChild(beam);
+
+      // Add pulse ring to icon-frame
+      const iconFrame = card.querySelector('.icon-frame');
+      if (iconFrame) {
+        const ring = document.createElement('div');
+        ring.className = 'pulse-ring';
+        ring.style.animationDelay = (idx * 0.5) + 's';
+        iconFrame.appendChild(ring);
+      }
+
+      const state = {
+        orbits: Array.from(orbits),
+        currentAngles: [0, 0],
+        targetAngles: [0, 0],
+        hoverAngles: [null, null],
+        hoverProgress: [0, 0],
+        isHovering: false,
+        clickBurst: [0, 0],
+        speed: [20 + Math.random() * 15, -(15 + Math.random() * 12)],
+        particleTimer: 0,
+        particles: [],
+      };
+      orbitStates.push(state);
+
+      card.addEventListener('mouseenter', () => { state.isHovering = true; });
+      card.addEventListener('mouseleave', () => {
+        state.isHovering = false;
+        state.hoverAngles = [null, null];
+      });
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        const dx = e.clientX - rect.left - cx;
+        const dy = e.clientY - rect.top - cy;
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+        state.hoverAngles[0] = angle;
+        state.hoverAngles[1] = -angle;
+      });
+      card.addEventListener('click', () => {
+        state.clickBurst[0] = 720;
+        state.clickBurst[1] = -540;
+        // Burst of particles on click
+        for (let p = 0; p < 6; p++) {
+          spawnParticle(state, card, true);
+        }
+      });
+    });
+
+    function spawnParticle(state, card, burst = false) {
+      const el = document.createElement('span');
+      el.className = 'code-particle';
+      el.textContent = PARTICLE_CHARS[Math.floor(Math.random() * PARTICLE_CHARS.length)];
+      const startX = 20 + Math.random() * (card.offsetWidth - 40);
+      const startY = 30 + Math.random() * (card.offsetHeight * 0.5);
+      el.style.left = startX + 'px';
+      el.style.top = startY + 'px';
+      const floatDist = 60 + Math.random() * 100;
+      const drift = (Math.random() - 0.5) * 40;
+      const duration = 3 + Math.random() * 3;
+      const hue = 110 + Math.random() * 40;
+      el.style.color = `hsl(${hue}, 80%, ${45 + Math.random() * 30}%)`;
+      el.style.fontSize = (7 + Math.random() * 5) + 'px';
+      el.style.fontWeight = '700';
+      el.style.transition = 'none';
+      card.appendChild(el);
+
+      // Force layout, then animate
+      requestAnimationFrame(() => {
+        el.style.transition = `transform ${duration}s linear, opacity ${duration * 0.7}s ease-out`;
+        el.style.transform = `translateY(-${floatDist}px) translateX(${drift}px)`;
+        if (burst) {
+          el.style.opacity = '0.8';
+        } else {
+          el.style.opacity = '0.6';
+        }
+        setTimeout(() => {
+          el.style.opacity = '0';
+          setTimeout(() => el.remove(), 600);
+        }, duration * 700);
+      });
+
+      state.particles.push(el);
+      // Clean up stale references
+      state.particles = state.particles.filter(p => p.parentNode);
+    }
+
+    let orbitTime = 0;
+    function animateOrbits() {
+      orbitTime += 0.016;
+      for (const s of orbitStates) {
+        s.particleTimer += 0.016;
+        if (s.particleTimer > 0.8 + Math.random() * 0.6) {
+          s.particleTimer = 0;
+          spawnParticle(s, s.orbits[0].closest('.visual-card'));
+        }
+
+        for (let i = 0; i < s.orbits.length; i++) {
+          let target;
+
+          if (s.isHovering && s.hoverAngles[i] !== null) {
+            target = s.hoverAngles[i] + 90;
+            s.hoverProgress[i] = Math.min(1, s.hoverProgress[i] + 0.035);
+          } else {
+            target = orbitTime * s.speed[i];
+            s.hoverProgress[i] = Math.max(0, s.hoverProgress[i] - 0.012);
+          }
+
+          if (s.clickBurst[i] !== 0) {
+            const burst = Math.sign(s.clickBurst[i]) * Math.min(Math.abs(s.clickBurst[i]), 18);
+            s.clickBurst[i] -= burst;
+            target += burst;
+            if (Math.abs(s.clickBurst[i]) < 1) s.clickBurst[i] = 0;
+          }
+
+          const lerpFactor = s.isHovering ? 0.14 : 0.05;
+          s.currentAngles[i] += (target - s.currentAngles[i]) * lerpFactor;
+          s.orbits[i].style.transform = `rotate(${s.currentAngles[i]}deg)`;
+        }
+      }
+      requestAnimationFrame(animateOrbits);
+    }
+    animateOrbits();
   </script>
 </body>
 </html>
