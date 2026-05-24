@@ -130,6 +130,11 @@
       gap: var(--space-2xl);
       align-items: center;
     }
+    .code-manifesto .visual-card {
+      width: 100%;
+      min-width: 0;
+    }
+    #music .code-manifesto { gap: var(--space-2xl); }
     .scan-beam {
       position: absolute;
       left: 0; right: 0;
@@ -183,6 +188,7 @@
       -webkit-backdrop-filter: blur(8px);
       cursor: crosshair;
       user-select: none;
+      width: 100%;
     }
     .visual-card::before {
       content: '';
@@ -190,6 +196,32 @@
       inset: 0;
       background: linear-gradient(180deg, rgba(0,255,65,0.06) 0%, transparent 40%, rgba(0,255,65,0.04) 100%);
       pointer-events: none;
+    }
+    .interactive-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .card-hint {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(0, 255, 65, 0.35);
+      pointer-events: none;
+      z-index: 2;
+      animation: hint-pulse 3s ease-in-out infinite;
+    }
+    @keyframes hint-pulse {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.7; }
     }
     .icon-frame {
       position: relative;
@@ -354,6 +386,22 @@
       p { font-size: 1.05rem; max-width: 100%; }
       .code-manifesto { grid-template-columns: 1fr; text-align: center; gap: var(--space-lg); }
       .code-manifesto p { margin: 0 auto; }
+      #music .code-manifesto { display: flex; flex-direction: column; gap: var(--space-lg); }
+      #music .code-manifesto .text-backdrop { order: 1; }
+      #music .code-manifesto .visual-card { order: 2; min-height: 350px; }
+      #science .code-manifesto { display: flex; flex-direction: column; gap: var(--space-lg); }
+      #science .code-manifesto .text-backdrop { order: 1; }
+      #science .code-manifesto .visual-card-science { order: 2; min-height: 350px; }
+      #art .code-manifesto { display: flex; flex-direction: column; gap: var(--space-lg); }
+      #art .code-manifesto .text-backdrop { order: 1; padding: var(--space-lg) var(--space-md); }
+      #art .code-manifesto .visual-card-art { order: 2; min-height: 350px; width: 100%; }
+      #commerce .code-manifesto { display: flex; flex-direction: column; gap: var(--space-lg); }
+      #commerce .code-manifesto .text-backdrop { order: 1; padding: var(--space-lg) var(--space-md); }
+      #commerce .code-manifesto .visual-card-commerce { order: 2; min-height: 350px; width: 100%; }
+      #world .code-manifesto { display: flex; flex-direction: column; gap: var(--space-lg); }
+      #world .code-manifesto .text-backdrop { order: 1; padding: var(--space-lg) var(--space-md); }
+      #world .code-manifesto .visual-card { order: 2; min-height: 350px; width: 100%; }
+      .code-manifesto .visual-card { width: 100%; min-width: 0; }
       .scan-beam { display: none; }
       .visual-card { min-height: 280px; }
       .icon-frame { width: 200px; height: 200px; }
@@ -365,6 +413,13 @@
       .text-backdrop { padding: var(--space-lg) var(--space-sm); }
       .section-content { padding: 0 var(--space-xs); }
     }
+    .visual-card-commerce { border-color: rgba(255, 215, 0, 0.25); }
+    .visual-card-commerce::before {
+      background: linear-gradient(180deg, rgba(255,215,0,0.06) 0%, transparent 40%, rgba(0,255,65,0.04) 100%);
+    }
+    .visual-card-art { border-color: rgba(0, 255, 65, 0.25); }
+    .visual-card-commerce .card-hint { color: rgba(255, 215, 0, 0.4); }
+    .visual-card-art .card-hint { color: rgba(128, 255, 170, 0.4); }
     #scanlines {
       position: fixed; top: 0; left: 0;
       width: 100vw; height: 100vh;
@@ -524,27 +579,9 @@
           <p class="reveal reveal-delay-2">Every note is a <span class="highlight">function call</span>. Every rhythm is a <span class="highlight">loop</span>. Harmony is compression — many voices folded into one signal. The song stuck in your head right now? That's an infinite process running on the meat between your ears.</p>
           <p class="reveal reveal-delay-3" style="margin-top:var(--space-sm);font-size:clamp(0.95rem,1.8vw,1.1rem);color:#a0a0a0;">You've been running executables your whole life. You just didn't know they were code.</p>
         </div>
-        <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
-          <span class="orbit"></span><span class="orbit"></span>
-          <div class="icon-frame">
-            <svg viewBox="0 0 160 160" fill="none" stroke="#b4ffb4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <defs>
-                <linearGradient id="wav-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#00ff41" stop-opacity="0.9"/>
-                  <stop offset="100%" stop-color="#00ff41" stop-opacity="0.1"/>
-                </linearGradient>
-              </defs>
-              <path d="M20 85 Q30 50 40 80 Q50 110 60 75 Q70 40 80 85 Q90 130 100 70 Q110 10 120 80 Q130 150 140 85" stroke="url(#wav-grad)" fill="none" stroke-width="2"/>
-              <path d="M20 80 Q40 60 60 80 Q80 100 100 80 Q120 60 140 80" stroke="#00ff41" stroke-width="1" opacity="0.3" stroke-dasharray="3 6"/>
-              <circle cx="40" cy="80" r="2.5" fill="#00ff41" opacity="0.6"/>
-              <circle cx="80" cy="85" r="2.5" fill="#00ff41" opacity="0.6"/>
-              <circle cx="120" cy="80" r="2.5" fill="#00ff41" opacity="0.6"/>
-              <foreignObject x="20" y="120" width="120" height="36">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00ff41;opacity:0.55;text-align:center;font-weight:700;line-height:1.2;display:flex;align-items:center;justify-content:center;height:100%;">music.play(emotion)</div>
-              </foreignObject>
-            </svg>
-          </div>
-          <div class="ticker"><span>note.frequency(440) // rhythm.loop(4/4) // harmony.compress() // you.are(executable) // </span></div>
+        <div class="visual-card visual-card-music reveal reveal-delay-3" aria-hidden="true" data-section="music">
+          <canvas class="interactive-canvas" aria-hidden="true"></canvas>
+          <div class="card-hint">drag to compose</div>
         </div>
       </div>
     </section>
@@ -557,27 +594,9 @@
           <p class="reveal reveal-delay-2">Gravity doesn't guess. It <span class="highlight">follows the protocol</span>. Light takes the fastest route because it was programmed that way. Every particle collision is a unit test for the universe. The laws of physics are just the standard library of existence.</p>
           <p class="reveal reveal-delay-3" style="margin-top:var(--space-sm);font-size:clamp(0.95rem,1.8vw,1.1rem);color:#a0a0a0;">We're not discovering reality. We're <em>reading the source code</em>. Every experiment is a debugger. Every equation is a function that hasn't been optimized in 14 billion years.</p>
         </div>
-        <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
-          <span class="orbit"></span><span class="orbit"></span>
-          <div class="icon-frame">
-            <svg viewBox="0 0 160 160" fill="none">
-              <circle cx="80" cy="80" r="50" stroke="#00ff41" stroke-width="1.5" opacity="0.3"/>
-              <ellipse cx="80" cy="80" rx="50" ry="18" stroke="#b4ffb4" stroke-width="1.5" opacity="0.6"/>
-              <ellipse cx="80" cy="80" rx="50" ry="18" stroke="#00ff41" stroke-width="1" opacity="0.4" transform="rotate(60 80 80)"/>
-              <ellipse cx="80" cy="80" rx="50" ry="18" stroke="#00ff41" stroke-width="1" opacity="0.4" transform="rotate(120 80 80)"/>
-              <circle cx="80" cy="80" r="5" fill="#00ff41" opacity="0.9"/>
-              <circle cx="80" cy="80" r="2" fill="#fff" opacity="0.8"/>
-              <circle cx="130" cy="80" r="3" fill="#b4ffb4" opacity="0.5"/>
-              <circle cx="50" cy="38" r="3" fill="#b4ffb4" opacity="0.5"/>
-              <circle cx="55" cy="122" r="3" fill="#b4ffb4" opacity="0.5"/>
-              <path d="M80 80 L130 80" stroke="#00ff41" stroke-width="0.8" opacity="0.2"/>
-              <path d="M80 80 L50 38" stroke="#00ff41" stroke-width="0.8" opacity="0.2"/>
-              <foreignObject x="20" y="145" width="120" height="36">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00ff41;opacity:0.55;text-align:center;font-weight:700;line-height:1.2;display:flex;align-items:center;justify-content:center;height:100%;">universe.execute(physics)</div>
-              </foreignObject>
-            </svg>
-          </div>
-          <div class="ticker"><span>gravity.protocol() // light.route() // particle.test() // law.standardLibrary() // </span></div>
+        <div class="visual-card visual-card-science reveal reveal-delay-3" aria-hidden="true" data-section="science">
+          <canvas class="interactive-canvas" aria-hidden="true"></canvas>
+          <div class="card-hint">tap to add electrons</div>
         </div>
       </div>
     </section>
@@ -590,24 +609,9 @@
           <p class="reveal reveal-delay-2">Color is <span class="highlight">wavelength data</span> processed by your retina's API. Every painting is a render of the artist's state. Composition is an algorithm that guides the eye — a visual path optimized for emotion.</p>
           <p class="reveal reveal-delay-3" style="margin-top:var(--space-sm);font-size:clamp(0.95rem,1.8vw,1.1rem);color:#a0a0a0;">The Mona Lisa has been a successful function call for 500 years. No patches. No memory leaks. Just pure, beautiful execution. <em>Art is code that runs on humans.</em></p>
         </div>
-        <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
-          <span class="orbit"></span><span class="orbit"></span>
-          <div class="icon-frame">
-            <svg viewBox="0 0 160 160" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M30 85 Q50 50 70 75 Q90 100 110 70 Q130 40 145 80" stroke="#00ff41" stroke-width="2" fill="none" opacity="0.3"/>
-              <path d="M35 95 Q55 60 75 90 Q95 120 115 80 Q135 40 140 95" stroke="#b4ffb4" stroke-width="1.5" fill="none" opacity="0.5"/>
-              <circle cx="45" cy="70" r="4" fill="#00ff41" opacity="0.8"/>
-              <circle cx="85" cy="95" r="4" fill="#b4ffb4" opacity="0.7"/>
-              <circle cx="125" cy="60" r="4" fill="#00ff41" opacity="0.6"/>
-              <circle cx="65" cy="40" r="2.5" fill="#b4ffb4" opacity="0.4"/>
-              <circle cx="105" cy="110" r="2.5" fill="#00ff41" opacity="0.4"/>
-              <path d="M75 125 Q85 115 95 125 Q105 135 95 145 Q85 155 75 145 Q65 135 75 125Z" fill="none" stroke="#00ff41" stroke-width="1.5" opacity="0.4"/>
-              <foreignObject x="20" y="145" width="120" height="36">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00ff41;opacity:0.55;text-align:center;font-weight:700;line-height:1.2;display:flex;align-items:center;justify-content:center;height:100%;">art.render(beauty)</div>
-              </foreignObject>
-            </svg>
-          </div>
-          <div class="ticker"><span>color.wavelength(650nm) // composition.algorithm() // beauty.execute(human) // </span></div>
+        <div class="visual-card visual-card-art reveal reveal-delay-3" aria-hidden="true" data-section="art">
+          <canvas class="interactive-canvas" aria-hidden="true"></canvas>
+          <div class="card-hint">drag to paint</div>
         </div>
       </div>
     </section>
@@ -620,30 +624,9 @@
           <p class="reveal reveal-delay-2">Money is just a <span class="highlight">counter</span> — an integer variable the whole world shares. Every purchase is an <span class="highlight">API call</span>. Every market is a distributed consensus system. Your salary is a return value from a function you run 40 hours a week.</p>
           <p class="reveal reveal-delay-3" style="margin-top:var(--space-sm);font-size:clamp(0.95rem,1.8vw,1.1rem);color:#a0a0a0;">Inflation is a memory leak in the global economic stack. The stock market is just the world's most expensive event loop. <em>Commerce is code — and the economy is the biggest undocumented codebase in existence.</em></p>
         </div>
-        <div class="visual-card reveal reveal-delay-3" aria-hidden="true">
-          <span class="orbit"></span><span class="orbit"></span>
-          <div class="icon-frame">
-            <svg viewBox="0 0 160 160" fill="none">
-              <defs>
-                <linearGradient id="ch-grad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stop-color="#00ff41" stop-opacity="0.4"/>
-                  <stop offset="50%" stop-color="#00ff41" stop-opacity="0.9"/>
-                  <stop offset="100%" stop-color="#00ff41" stop-opacity="0.4"/>
-                </linearGradient>
-              </defs>
-              <rect x="35" y="70" width="90" height="25" rx="3" stroke="#00ff41" stroke-width="1.5" fill="none" opacity="0.4"/>
-              <rect x="40" y="75" width="20" height="15" rx="1" fill="#00ff41" opacity="0.6"/>
-              <rect x="65" y="75" width="15" height="15" rx="1" fill="#00ff41" opacity="0.3"/>
-              <rect x="85" y="75" width="30" height="15" rx="1" fill="#00ff41" opacity="0.2"/>
-              <path d="M50 50 Q65 40 80 50 Q95 60 110 50" stroke="#00ff41" stroke-width="1.5" fill="none" opacity="0.5"/>
-              <path d="M50 115 Q65 105 80 115 Q95 125 110 115" stroke="#00ff41" stroke-width="1.5" fill="none" opacity="0.5"/>
-              <path d="M45 130 L80 45 L115 130 Z" stroke="#b4ffb4" stroke-width="1" fill="none" opacity="0.15" stroke-linecap="round"/>
-              <foreignObject x="20" y="145" width="120" height="36">
-                <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#00ff41;opacity:0.55;text-align:center;font-weight:700;line-height:1.2;display:flex;align-items:center;justify-content:center;height:100%;">balance.transfer(value)</div>
-              </foreignObject>
-            </svg>
-          </div>
-          <div class="ticker"><span>money.counter++ // trade.api() // salary.return() // economy.run(eventLoop) // </span></div>
+        <div class="visual-card visual-card-commerce reveal reveal-delay-3" aria-hidden="true" data-section="commerce">
+          <canvas class="interactive-canvas" aria-hidden="true"></canvas>
+          <div class="card-hint">tap to transact</div>
         </div>
       </div>
     </section>
@@ -1530,6 +1513,1011 @@
       titleIndex = (titleIndex + 1) % TITLES.length;
       scrambleTo(TITLES[titleIndex]);
     }, 5000);
+
+    // ── Interactive Music Waveform Visualizer ──
+    function initMusicVisualizer() {
+      const card = document.querySelector('[data-section="music"]');
+      if (!card) return;
+      const canvas = card.querySelector('.interactive-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let dpr = window.devicePixelRatio || 1;
+      let W = 0, H = 0;
+      let mouseX = -1, mouseY = -1;
+      let isHovering = false;
+      let time = 0;
+
+      const ripples = [];
+      const notes = [];
+      const NOTE_CHARS = ['\u2669', '\u266A', '\u266B', '\u266C'];
+      const GREEN = '#00ff41';
+      const BRIGHT = '#b4ffb4';
+      const WHITE = '#ffffff';
+
+      function resize() {
+        const rect = card.getBoundingClientRect();
+        W = rect.width;
+        H = rect.height;
+        dpr = window.devicePixelRatio || 1;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      resize();
+      const ro = new ResizeObserver(resize);
+      ro.observe(card);
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+      }
+
+      canvas.addEventListener('mouseenter', () => { isHovering = true; });
+      canvas.addEventListener('mouseleave', () => { isHovering = false; mouseX = -1; mouseY = -1; });
+      canvas.addEventListener('mousemove', (e) => {
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+      });
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isHovering = true;
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+        addRipple(p.x, p.y);
+      }, { passive: false });
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+      }, { passive: false });
+      canvas.addEventListener('touchend', () => { isHovering = false; mouseX = -1; mouseY = -1; });
+      canvas.addEventListener('click', (e) => {
+        const p = getPos(e);
+        addRipple(p.x, p.y);
+      });
+
+      function addRipple(x, y) {
+        ripples.push({ x, y, radius: 0, alpha: 0.8, speed: 2.5 });
+        for (let i = 0; i < 5; i++) {
+          notes.push({
+            x: x + (Math.random() - 0.5) * 40,
+            y: y - 10,
+            vy: -1.2 - Math.random() * 1.5,
+            vx: (Math.random() - 0.5) * 0.8,
+            char: NOTE_CHARS[Math.floor(Math.random() * NOTE_CHARS.length)],
+            alpha: 0.6 + Math.random() * 0.4,
+            size: 12 + Math.random() * 10,
+            life: 1,
+            decay: 0.008 + Math.random() * 0.006,
+          });
+        }
+      }
+
+      function drawWaveform(t) {
+        ctx.clearRect(0, 0, W, H);
+        const midY = H / 2;
+        const freqNorm = isHovering && mouseX >= 0 ? mouseX / W : 0.5;
+        const ampNorm = isHovering && mouseY >= 0 ? 1 - (mouseY / H) : 0.5;
+        const baseFreq = 0.015 + freqNorm * 0.04;
+        const baseAmp = 20 + ampNorm * 80;
+
+        // Base waveform
+        ctx.beginPath();
+        ctx.strokeStyle = GREEN;
+        ctx.lineWidth = 2;
+        ctx.shadowColor = GREEN;
+        ctx.shadowBlur = 12;
+        for (let x = 0; x <= W; x += 2) {
+          const y = midY + Math.sin(x * baseFreq + t * 2) * baseAmp
+            + Math.sin(x * baseFreq * 2.5 + t * 3) * baseAmp * 0.3
+            + Math.sin(x * baseFreq * 0.5 + t * 1.2) * baseAmp * 0.5;
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Second harmonic (brighter, thinner)
+        ctx.beginPath();
+        ctx.strokeStyle = BRIGHT;
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 0.5;
+        for (let x = 0; x <= W; x += 2) {
+          const y = midY + Math.sin(x * baseFreq * 1.8 + t * 2.7 + 1) * baseAmp * 0.6
+            + Math.sin(x * baseFreq * 3.2 + t * 4) * baseAmp * 0.2;
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // Third harmonic (subtle)
+        ctx.beginPath();
+        ctx.strokeStyle = GREEN;
+        ctx.lineWidth = 0.8;
+        ctx.globalAlpha = 0.25;
+        for (let x = 0; x <= W; x += 2) {
+          const y = midY + Math.sin(x * baseFreq * 3.5 + t * 5 + 2) * baseAmp * 0.35;
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // Cursor glow
+        if (isHovering && mouseX >= 0) {
+          const cursorY = midY + Math.sin(mouseX * baseFreq + t * 2) * baseAmp;
+          const grad = ctx.createRadialGradient(mouseX, cursorY, 0, mouseX, cursorY, 35);
+          grad.addColorStop(0, 'rgba(180, 255, 180, 0.5)');
+          grad.addColorStop(0.4, 'rgba(0, 255, 65, 0.15)');
+          grad.addColorStop(1, 'transparent');
+          ctx.fillStyle = grad;
+          ctx.fillRect(mouseX - 35, cursorY - 35, 70, 70);
+
+          // Vertical guide line
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(0, 255, 65, 0.12)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.moveTo(mouseX, 0);
+          ctx.lineTo(mouseX, H);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+
+      function drawRipples() {
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const r = ripples[i];
+          r.radius += r.speed;
+          r.alpha -= 0.008;
+          if (r.alpha <= 0) { ripples.splice(i, 1); continue; }
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0, 255, 65, ${r.alpha})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Inner ring
+          if (r.radius > 10) {
+            ctx.beginPath();
+            ctx.arc(r.x, r.y, r.radius * 0.6, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(180, 255, 180, ${r.alpha * 0.5})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      }
+
+      function drawNotes() {
+        for (let i = notes.length - 1; i >= 0; i--) {
+          const n = notes[i];
+          n.x += n.vx;
+          n.y += n.vy;
+          n.vy -= 0.01;
+          n.life -= n.decay;
+          if (n.life <= 0) { notes.splice(i, 1); continue; }
+          ctx.globalAlpha = n.life * n.alpha;
+          ctx.font = `${n.size}px serif`;
+          ctx.fillStyle = n.life > 0.5 ? WHITE : BRIGHT;
+          ctx.shadowColor = GREEN;
+          ctx.shadowBlur = 8;
+          ctx.fillText(n.char, n.x, n.y);
+          ctx.shadowBlur = 0;
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      // Auto-spawn notes from wave peaks when hovering
+      let autoNoteTimer = 0;
+      function autoSpawnNotes(t) {
+        if (!isHovering || mouseX < 0) return;
+        autoNoteTimer += 0.016;
+        if (autoNoteTimer > 0.35) {
+          autoNoteTimer = 0;
+          const midY = H / 2;
+          const freqNorm = mouseX / W;
+          const ampNorm = 1 - (mouseY / H);
+          const baseFreq = 0.015 + freqNorm * 0.04;
+          const baseAmp = 20 + ampNorm * 80;
+          const peakX = mouseX + (Math.random() - 0.5) * 60;
+          const peakY = midY + Math.sin(peakX * baseFreq + t * 2) * baseAmp;
+          notes.push({
+            x: peakX,
+            y: peakY - 5,
+            vy: -0.8 - Math.random() * 0.6,
+            vx: (Math.random() - 0.5) * 0.4,
+            char: NOTE_CHARS[Math.floor(Math.random() * NOTE_CHARS.length)],
+            alpha: 0.4 + Math.random() * 0.3,
+            size: 10 + Math.random() * 8,
+            life: 1,
+            decay: 0.01 + Math.random() * 0.005,
+          });
+        }
+      }
+
+      function frame() {
+        time += 0.016;
+        drawWaveform(time);
+        drawRipples();
+        autoSpawnNotes(time);
+        drawNotes();
+        requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => { initMusicVisualizer(); initScienceAtom(); initCommerceMarket(); initArtPainter(); });
+    } else {
+      initMusicVisualizer();
+      initScienceAtom();
+      initCommerceMarket();
+      initArtPainter();
+    }
+
+    // ── Interactive Science Atom Simulation ──
+    function initScienceAtom() {
+      const card = document.querySelector('[data-section="science"]');
+      if (!card) return;
+      const canvas = card.querySelector('.interactive-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let dpr = window.devicePixelRatio || 1;
+      let W = 0, H = 0;
+      let mouseX = -1000, mouseY = -1000;
+      let isHovering = false;
+      let time = 0;
+      let lastClick = 0;
+
+      const GREEN = '#00ff41';
+      const BRIGHT = '#b4ffb4';
+      const WHITE = '#ffffff';
+      const BLUE_WHITE = '#c8e0ff';
+
+      const PHYSICS_SYMBOLS = ['ℏ', '∂', '∇', 'λ', 'ψ', 'Δ', 'Σ', 'Ω', '∞', 'φ', 'θ', 'ε', 'π', '∫', '⊗', '⊕'];
+
+      const electrons = [];
+      const floatingSymbols = [];
+      const trails = [];
+      const MAX_SHELLS = 7;
+
+      function resize() {
+        const rect = card.getBoundingClientRect();
+        W = rect.width;
+        H = rect.height;
+        dpr = window.devicePixelRatio || 1;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      resize();
+      const ro = new ResizeObserver(resize);
+      ro.observe(card);
+
+      function addElectron(shellIndex) {
+        if (electrons.length >= MAX_SHELLS) return;
+        const shell = shellIndex !== undefined ? shellIndex : electrons.length;
+        const rx = 50 + shell * 28;
+        const ry = 20 + shell * 10;
+        const tilt = (shell * 47 + 15) * (Math.PI / 180);
+        const speed = 0.4 + Math.random() * 0.3 - shell * 0.03;
+        const angle = Math.random() * Math.PI * 2;
+        electrons.push({ shell, rx, ry, tilt, speed, angle, baseSpeed: speed, trail: [] });
+      }
+
+      function removeOutermost() {
+        if (electrons.length === 0) return;
+        electrons.pop();
+      }
+
+      // Start with 3 electrons
+      for (let i = 0; i < 3; i++) addElectron(i);
+
+      // Init floating symbols
+      for (let i = 0; i < 12; i++) {
+        floatingSymbols.push({
+          char: PHYSICS_SYMBOLS[Math.floor(Math.random() * PHYSICS_SYMBOLS.length)],
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          alpha: 0.08 + Math.random() * 0.12,
+          size: 14 + Math.random() * 10,
+          rotation: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.005,
+        });
+      }
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+      }
+
+      canvas.addEventListener('mouseenter', () => { isHovering = true; });
+      canvas.addEventListener('mouseleave', () => { isHovering = false; mouseX = -1000; mouseY = -1000; });
+      canvas.addEventListener('mousemove', (e) => {
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+      });
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isHovering = true;
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+      }, { passive: false });
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+      }, { passive: false });
+      canvas.addEventListener('touchend', () => { isHovering = false; mouseX = -1000; mouseY = -1000; });
+
+      canvas.addEventListener('click', (e) => {
+        const now = Date.now();
+        const p = getPos(e);
+        if (now - lastClick < 350) {
+          removeOutermost();
+        } else {
+          addElectron();
+        }
+        lastClick = now;
+      });
+
+      function drawNucleus(t) {
+        const cx = W / 2;
+        const cy = H / 2;
+        const electronCount = electrons.length;
+        const pulseBase = 8 + electronCount * 2;
+        const pulse = pulseBase + Math.sin(t * 3) * 3 + Math.sin(t * 5.7) * 1.5;
+
+        // Outer glow
+        const glowGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse * 4);
+        glowGrad.addColorStop(0, `rgba(0, 255, 65, ${0.15 + electronCount * 0.03})`);
+        glowGrad.addColorStop(0.3, `rgba(0, 255, 65, ${0.06 + electronCount * 0.015})`);
+        glowGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, pulse * 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core
+        const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse);
+        coreGrad.addColorStop(0, WHITE);
+        coreGrad.addColorStop(0.3, BRIGHT);
+        coreGrad.addColorStop(0.7, GREEN);
+        coreGrad.addColorStop(1, 'rgba(0, 255, 65, 0.3)');
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner bright spot
+        ctx.fillStyle = WHITE;
+        ctx.globalAlpha = 0.7 + Math.sin(t * 4) * 0.3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, pulse * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      function drawOrbitPath(electron, t) {
+        const cx = W / 2;
+        const cy = H / 2;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(electron.tilt);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, electron.rx, electron.ry, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(0, 255, 65, ${0.06 + (isHovering ? 0.04 : 0)})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function getElectronPos(electron) {
+        const cx = W / 2;
+        const cy = H / 2;
+        const x = Math.cos(electron.angle) * electron.rx;
+        const y = Math.sin(electron.angle) * electron.ry;
+        const cosT = Math.cos(electron.tilt);
+        const sinT = Math.sin(electron.tilt);
+        return {
+          x: cx + x * cosT - y * sinT,
+          y: cy + x * sinT + y * cosT,
+        };
+      }
+
+      function drawElectron(electron, t) {
+        const pos = getElectronPos(electron);
+        const distToMouse = Math.sqrt((pos.x - mouseX) ** 2 + (pos.y - mouseY) ** 2);
+        const isNearMouse = distToMouse < 80;
+        const speedBoost = isNearMouse ? 2.5 : 1;
+        const glowSize = isNearMouse ? 8 : 4;
+        const glowAlpha = isNearMouse ? 0.9 : 0.6;
+
+        electron.angle += electron.baseSpeed * speedBoost * 0.016;
+
+        // Trail
+        electron.trail.push({ x: pos.x, y: pos.y, alpha: glowAlpha });
+        if (electron.trail.length > 25) electron.trail.shift();
+
+        // Draw trail
+        for (let i = 0; i < electron.trail.length; i++) {
+          const tp = electron.trail[i];
+          const progress = i / electron.trail.length;
+          ctx.fillStyle = `rgba(0, 255, 65, ${progress * 0.25 * tp.alpha})`;
+          ctx.beginPath();
+          ctx.arc(tp.x, tp.y, 1.5 + progress * 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Electron glow
+        const eGrad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, glowSize * 3);
+        eGrad.addColorStop(0, `rgba(200, 224, 255, ${glowAlpha})`);
+        eGrad.addColorStop(0.3, `rgba(0, 255, 65, ${glowAlpha * 0.5})`);
+        eGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = eGrad;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, glowSize * 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Electron core
+        ctx.fillStyle = BLUE_WHITE;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, glowSize * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawFloatingSymbols(t) {
+        for (const s of floatingSymbols) {
+          s.x += s.vx;
+          s.y += s.vy;
+          s.rotation += s.rotSpeed;
+
+          if (s.x < -20) s.x = W + 20;
+          if (s.x > W + 20) s.x = -20;
+          if (s.y < -20) s.y = H + 20;
+          if (s.y > H + 20) s.y = -20;
+
+          ctx.save();
+          ctx.translate(s.x, s.y);
+          ctx.rotate(s.rotation);
+          ctx.font = `${s.size}px serif`;
+          ctx.fillStyle = `rgba(0, 255, 65, ${s.alpha})`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(s.char, 0, 0);
+          ctx.restore();
+        }
+      }
+
+      function frame(timestamp) {
+        const dt = Math.min((timestamp - (frame.lastTime || timestamp)) / 1000, 0.05);
+        frame.lastTime = timestamp;
+        time += dt;
+
+        ctx.clearRect(0, 0, W, H);
+
+        drawFloatingSymbols(time);
+
+        for (const electron of electrons) {
+          drawOrbitPath(electron, time);
+        }
+
+        drawNucleus(time);
+
+        for (const electron of electrons) {
+          drawElectron(electron, time);
+        }
+
+        requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    // ── Interactive Commerce Market Ticker ──
+    function initCommerceMarket() {
+      const card = document.querySelector('[data-section="commerce"]');
+      if (!card) return;
+      const canvas = card.querySelector('.interactive-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let dpr = window.devicePixelRatio || 1;
+      let W = 0, H = 0;
+      let mouseX = -1000, mouseY = -1000;
+      let isHovering = false;
+      let time = 0;
+
+      const GREEN = '#00ff41';
+      const BRIGHT = '#b4ffb4';
+      const GOLD = '#ffd700';
+      const WHITE = '#ffffff';
+      const RED = '#ff4444';
+
+      const TICKER_TEXT = 'AAPL.buy() // BTC.mine() // ETH.stake() // SOL.trade() // USD.hedge() // NVDA.hold() // TSLA.short() // ';
+      const CURRENCY_CHARS = ['$', '\u20AC', '\u00A5', '\u00A3', '\u00A2'];
+
+      const bars = [];
+      const transactions = [];
+      const NUM_BARS = 40;
+
+      function resize() {
+        const rect = card.getBoundingClientRect();
+        W = rect.width;
+        H = rect.height;
+        dpr = window.devicePixelRatio || 1;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        initBars();
+      }
+
+      function initBars() {
+        bars.length = 0;
+        const barWidth = (W - 40) / NUM_BARS;
+        for (let i = 0; i < NUM_BARS; i++) {
+          bars.push({
+            x: 20 + i * barWidth,
+            width: barWidth * 0.7,
+            height: 30 + Math.random() * (H * 0.5),
+            targetHeight: 30 + Math.random() * (H * 0.5),
+            open: 0,
+            close: 0,
+            phase: Math.random() * Math.PI * 2,
+          });
+          bars[i].open = bars[i].height * (0.3 + Math.random() * 0.4);
+          bars[i].close = bars[i].height * (0.3 + Math.random() * 0.4);
+        }
+      }
+
+      resize();
+      const ro = new ResizeObserver(resize);
+      ro.observe(card);
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+      }
+
+      canvas.addEventListener('mouseenter', () => { isHovering = true; });
+      canvas.addEventListener('mouseleave', () => { isHovering = false; mouseX = -1000; mouseY = -1000; });
+      canvas.addEventListener('mousemove', (e) => {
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+      });
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isHovering = true;
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+        createTransaction(p.x, p.y);
+      }, { passive: false });
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+      }, { passive: false });
+      canvas.addEventListener('touchend', () => { isHovering = false; mouseX = -1000; mouseY = -1000; });
+      canvas.addEventListener('click', (e) => {
+        const p = getPos(e);
+        createTransaction(p.x, p.y);
+      });
+
+      function createTransaction(x, y) {
+        for (let i = 0; i < 12; i++) {
+          transactions.push({
+            x: x + (Math.random() - 0.5) * 20,
+            y: y,
+            vx: (Math.random() - 0.5) * 2,
+            vy: -2 - Math.random() * 3,
+            char: CURRENCY_CHARS[Math.floor(Math.random() * CURRENCY_CHARS.length)],
+            alpha: 1,
+            size: 14 + Math.random() * 10,
+            decay: 0.012 + Math.random() * 0.008,
+          });
+        }
+      }
+
+      function updateBars(t) {
+        const bullFactor = isHovering && mouseX >= 0 ? mouseX / W : 0.5;
+        for (let i = 0; i < bars.length; i++) {
+          const bar = bars[i];
+          const wave = Math.sin(t * 1.5 + bar.phase) * 20;
+          const bullBoost = (bullFactor - 0.5) * 40;
+          bar.targetHeight = 30 + Math.abs(wave + bullBoost) + Math.sin(t * 0.7 + i * 0.3) * 15;
+          bar.height += (bar.targetHeight - bar.height) * 0.05;
+          bar.open = bar.height * (0.3 + Math.sin(t * 2 + i) * 0.2);
+          bar.close = bar.height * (0.3 + Math.cos(t * 1.7 + i) * 0.2);
+        }
+      }
+
+      function drawChart(t) {
+        ctx.clearRect(0, 0, W, H);
+        const midY = H * 0.55;
+        const baseLine = H - 30;
+
+        // Grid lines
+        ctx.strokeStyle = 'rgba(0, 255, 65, 0.04)';
+        ctx.lineWidth = 1;
+        for (let y = 40; y < baseLine; y += 40) {
+          ctx.beginPath();
+          ctx.moveTo(10, y);
+          ctx.lineTo(W - 10, y);
+          ctx.stroke();
+        }
+
+        // Draw candlestick bars
+        for (let i = 0; i < bars.length; i++) {
+          const bar = bars[i];
+          const isBullish = bar.close > bar.open;
+          const bodyTop = midY - Math.max(bar.open, bar.close);
+          const bodyBottom = midY - Math.min(bar.open, bar.close);
+          const bodyHeight = Math.max(2, bodyBottom - bodyTop);
+
+          // Wick
+          ctx.strokeStyle = isBullish ? GREEN : RED;
+          ctx.lineWidth = 1;
+          ctx.globalAlpha = 0.4;
+          ctx.beginPath();
+          ctx.moveTo(bar.x + bar.width / 2, midY - bar.height);
+          ctx.lineTo(bar.x + bar.width / 2, midY);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+
+          // Body
+          const grad = ctx.createLinearGradient(bar.x, bodyTop, bar.x, bodyTop + bodyHeight);
+          if (isBullish) {
+            grad.addColorStop(0, GREEN);
+            grad.addColorStop(1, 'rgba(0, 255, 65, 0.3)');
+          } else {
+            grad.addColorStop(0, 'rgba(255, 68, 68, 0.6)');
+            grad.addColorStop(1, 'rgba(255, 68, 68, 0.2)');
+          }
+          ctx.fillStyle = grad;
+          ctx.fillRect(bar.x, bodyTop, bar.width, bodyHeight);
+        }
+
+        // Moving average line
+        ctx.beginPath();
+        ctx.strokeStyle = GOLD;
+        ctx.lineWidth = 2;
+        ctx.shadowColor = GOLD;
+        ctx.shadowBlur = 8;
+        ctx.globalAlpha = 0.7;
+        const maWindow = 5;
+        for (let i = maWindow; i < bars.length; i++) {
+          let sum = 0;
+          for (let j = i - maWindow; j < i; j++) {
+            sum += bars[j].close;
+          }
+          const ma = sum / maWindow;
+          const x = bars[i].x + bars[i].width / 2;
+          const y = midY - ma;
+          i === maWindow ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+
+        // Cursor line
+        if (isHovering && mouseX >= 0) {
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(255, 215, 0, 0.25)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.moveTo(mouseX, 10);
+          ctx.lineTo(mouseX, baseLine);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Cursor glow
+          const cursorGrad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 25);
+          cursorGrad.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
+          cursorGrad.addColorStop(1, 'transparent');
+          ctx.fillStyle = cursorGrad;
+          ctx.fillRect(mouseX - 25, mouseY - 25, 50, 50);
+        }
+
+        // Ticker text at bottom
+        ctx.font = 'bold 10px "JetBrains Mono", monospace';
+        ctx.fillStyle = GREEN;
+        ctx.globalAlpha = 0.5;
+        const tickerY = H - 10;
+        const tickerOffset = (t * 40) % (TICKER_TEXT.length * 8);
+        ctx.fillText(TICKER_TEXT, -tickerOffset, tickerY);
+        ctx.fillText(TICKER_TEXT, -tickerOffset + TICKER_TEXT.length * 8, tickerY);
+        ctx.globalAlpha = 1;
+      }
+
+      function drawTransactions() {
+        for (let i = transactions.length - 1; i >= 0; i--) {
+          const tx = transactions[i];
+          tx.x += tx.vx;
+          tx.y += tx.vy;
+          tx.vy -= 0.02;
+          tx.alpha -= tx.decay;
+          if (tx.alpha <= 0) { transactions.splice(i, 1); continue; }
+          ctx.globalAlpha = tx.alpha;
+          ctx.font = `bold ${tx.size}px "JetBrains Mono", monospace`;
+          ctx.fillStyle = tx.alpha > 0.5 ? GOLD : GREEN;
+          ctx.shadowColor = GOLD;
+          ctx.shadowBlur = 6;
+          ctx.fillText(tx.char, tx.x, tx.y);
+          ctx.shadowBlur = 0;
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function frame(timestamp) {
+        const dt = Math.min((timestamp - (frame.lastTime || timestamp)) / 1000, 0.05);
+        frame.lastTime = timestamp;
+        time += dt;
+
+        updateBars(time);
+        drawChart(time);
+        drawTransactions();
+
+        requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    // ── Interactive Art Painter ──
+    function initArtPainter() {
+      const card = document.querySelector('[data-section="art"]');
+      if (!card) return;
+      const canvas = card.querySelector('.interactive-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let dpr = window.devicePixelRatio || 1;
+      let W = 0, H = 0;
+      let mouseX = -1000, mouseY = -1000;
+      let isDrawing = false;
+      let isHovering = false;
+      let time = 0;
+      let lastActivity = 0;
+      let holdDuration = 0;
+
+      const GREENS = ['#00ff41', '#b4ffb4', '#80ffaa', '#40ff80'];
+      const WHITE = '#ffffff';
+
+      const particles = [];
+      const splashes = [];
+      const MAX_PARTICLES = 600;
+
+      function resize() {
+        const rect = card.getBoundingClientRect();
+        W = rect.width;
+        H = rect.height;
+        dpr = window.devicePixelRatio || 1;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      resize();
+      const ro = new ResizeObserver(resize);
+      ro.observe(card);
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+      }
+
+      canvas.addEventListener('mouseenter', () => { isHovering = true; });
+      canvas.addEventListener('mouseleave', () => { isHovering = false; isDrawing = false; mouseX = -1000; mouseY = -1000; });
+      canvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        holdDuration = 0;
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+        lastActivity = time;
+        createSplash(p.x, p.y, false);
+      });
+      canvas.addEventListener('mousemove', (e) => {
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+        if (isDrawing) {
+          lastActivity = time;
+          paintStroke(p.x, p.y);
+        }
+      });
+      canvas.addEventListener('mouseup', () => { isDrawing = false; holdDuration = 0; });
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isDrawing = true;
+        isHovering = true;
+        holdDuration = 0;
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+        lastActivity = time;
+        createSplash(p.x, p.y, false);
+      }, { passive: false });
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+        if (isDrawing) {
+          lastActivity = time;
+          paintStroke(p.x, p.y);
+        }
+      }, { passive: false });
+      canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        isDrawing = false;
+        isHovering = false;
+        holdDuration = 0;
+        mouseX = -1000;
+        mouseY = -1000;
+      }, { passive: false });
+      canvas.addEventListener('click', (e) => {
+        const p = getPos(e);
+        createSplash(p.x, p.y, true);
+        lastActivity = time;
+      });
+
+      function paintStroke(x, y) {
+        holdDuration += 0.016;
+        const density = Math.min(5, 1 + Math.floor(holdDuration * 2));
+        for (let i = 0; i < density; i++) {
+          if (particles.length >= MAX_PARTICLES) particles.shift();
+          const color = GREENS[Math.floor(Math.random() * GREENS.length)];
+          const char = getArtChar();
+          particles.push({
+            x: x + (Math.random() - 0.5) * 12,
+            y: y + (Math.random() - 0.5) * 12,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: -0.3 - Math.random() * 0.5,
+            char,
+            color,
+            alpha: 0.9,
+            size: 10 + Math.random() * 8,
+            decay: 0.003 + Math.random() * 0.003,
+          });
+        }
+      }
+
+      function createSplash(x, y, isClick) {
+        const count = isClick ? 24 : 8;
+        const speed = isClick ? 4 : 2;
+        for (let i = 0; i < count; i++) {
+          if (particles.length >= MAX_PARTICLES) particles.shift();
+          const angle = (i / count) * Math.PI * 2 + Math.random() * 0.3;
+          const vel = speed * (0.5 + Math.random() * 0.5);
+          const color = Math.random() < 0.2 ? WHITE : GREENS[Math.floor(Math.random() * GREENS.length)];
+          particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * vel,
+            vy: Math.sin(angle) * vel,
+            char: getArtChar(),
+            color,
+            alpha: 1,
+            size: 12 + Math.random() * 10,
+            decay: 0.008 + Math.random() * 0.006,
+          });
+        }
+      }
+
+      function getArtChar() {
+        const chars = '\u30A2\u30A4\u30A6\u30A8\u30AA\u30AB\u30AD\u30AF\u30B1\u30B3{}[]()<>/=*&|!?:;.,~^%#@$_01';
+        return chars[Math.floor(Math.random() * chars.length)];
+      }
+
+      function drawAutoPattern(t) {
+        const cx = W / 2;
+        const cy = H / 2;
+        const points = 60;
+        const branches = 6;
+
+        for (let b = 0; b < branches; b++) {
+          const baseAngle = (b / branches) * Math.PI * 2;
+          ctx.beginPath();
+          ctx.strokeStyle = GREENS[b % GREENS.length];
+          ctx.lineWidth = 1;
+          ctx.globalAlpha = 0.15 + Math.sin(t * 0.5 + b) * 0.05;
+
+          for (let i = 0; i < points; i++) {
+            const progress = i / points;
+            const angle = baseAngle + progress * Math.PI * 2 + Math.sin(t * 0.3 + progress * 3) * 0.5;
+            const radius = progress * Math.min(W, H) * 0.35;
+            const x = cx + Math.cos(angle) * radius;
+            const y = cy + Math.sin(angle) * radius;
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+
+        // Scatter characters along the pattern
+        if (Math.random() < 0.3) {
+          const b = Math.floor(Math.random() * branches);
+          const baseAngle = (b / branches) * Math.PI * 2;
+          const progress = Math.random();
+          const angle = baseAngle + progress * Math.PI * 2 + Math.sin(t * 0.3 + progress * 3) * 0.5;
+          const radius = progress * Math.min(W, H) * 0.35;
+          if (particles.length < MAX_PARTICLES) {
+            particles.push({
+              x: cx + Math.cos(angle) * radius,
+              y: cy + Math.sin(angle) * radius,
+              vx: 0,
+              vy: 0,
+              char: getArtChar(),
+              color: GREENS[Math.floor(Math.random() * GREENS.length)],
+              alpha: 0.4,
+              size: 8 + Math.random() * 6,
+              decay: 0.005,
+            });
+          }
+        }
+      }
+
+      function frame(timestamp) {
+        const dt = Math.min((timestamp - (frame.lastTime || timestamp)) / 1000, 0.05);
+        frame.lastTime = timestamp;
+        time += dt;
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Auto-generative pattern after 3s inactivity
+        if (!isDrawing && (time - lastActivity) > 3) {
+          drawAutoPattern(time);
+        }
+
+        // Update and draw particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.01;
+          p.alpha -= p.decay;
+          if (p.alpha <= 0) { particles.splice(i, 1); continue; }
+
+          ctx.globalAlpha = p.alpha;
+          ctx.font = `bold ${p.size}px "JetBrains Mono", monospace`;
+          ctx.fillStyle = p.color;
+          if (p.alpha > 0.7) {
+            ctx.shadowColor = p.color;
+            ctx.shadowBlur = 4;
+          }
+          ctx.fillText(p.char, p.x, p.y);
+          ctx.shadowBlur = 0;
+        }
+        ctx.globalAlpha = 1;
+
+        requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+    }
   </script>
 </body>
 </html>
