@@ -135,6 +135,7 @@
       min-width: 0;
     }
     #music .code-manifesto { gap: var(--space-2xl); }
+    #science .code-manifesto { gap: var(--space-2xl); align-items: stretch; }
     .scan-beam {
       position: absolute;
       left: 0; right: 0;
@@ -391,7 +392,7 @@
       #music .code-manifesto .visual-card { order: 2; min-height: 350px; }
       #science .code-manifesto { display: flex; flex-direction: column; gap: var(--space-lg); }
       #science .code-manifesto .text-backdrop { order: 1; }
-      #science .code-manifesto .visual-card-science { order: 2; min-height: 350px; width: 100%; }
+      #science .code-manifesto .visual-card-science { order: 2; min-height: 400px; width: 100%; }
       #art .code-manifesto { display: flex; flex-direction: column; gap: var(--space-lg); }
       #art .code-manifesto .text-backdrop { order: 1; padding: var(--space-lg) var(--space-md); }
       #art .code-manifesto .visual-card-art { order: 2; min-height: 350px; width: 100%; }
@@ -421,7 +422,7 @@
     .visual-card-commerce .card-hint { color: rgba(255, 215, 0, 0.4); }
     .visual-card-art .card-hint { color: rgba(128, 255, 170, 0.4); }
     .visual-card-science {
-      min-height: 420px;
+      min-height: 520px;
       width: 100%;
     }
     .visual-card-science .interactive-canvas {
@@ -1781,20 +1782,35 @@
       let W = 0, H = 0;
       let mouseX = -1000, mouseY = -1000;
       let isHovering = false;
+      let isDragging = false;
+      let dragStartX = 0, dragStartY = 0;
       let time = 0;
       let lastClick = 0;
+      let longPressTimer = null;
+      let longPressTarget = null;
 
       const GREEN = '#00ff41';
       const BRIGHT = '#b4ffb4';
       const WHITE = '#ffffff';
       const BLUE_WHITE = '#c8e0ff';
+      const GOLD = '#ffd700';
 
       const PHYSICS_SYMBOLS = ['ℏ', '∂', '∇', 'λ', 'ψ', 'Δ', 'Σ', 'Ω', '∞', 'φ', 'θ', 'ε', 'π', '∫', '⊗', '⊕'];
 
       const electrons = [];
       const floatingSymbols = [];
-      const trails = [];
+      const shockwaves = [];
+      const photons = [];
       const MAX_SHELLS = 7;
+
+      // Nucleus split state
+      let nucleusHovered = false;
+      let nucleusSplitProgress = 0;
+      const subParticles = [];
+
+      // Energy readout
+      let totalEnergy = 0;
+      let excitedCount = 0;
 
       function resize() {
         const rect = card.getBoundingClientRect();
@@ -1820,16 +1836,37 @@
         const tilt = (shell * 47 + 15) * (Math.PI / 180);
         const speed = 0.4 + Math.random() * 0.3 - shell * 0.03;
         const angle = Math.random() * Math.PI * 2;
-        electrons.push({ shell, rx, ry, tilt, speed, angle, baseSpeed: speed, trail: [] });
+        electrons.push({
+          shell, rx, ry, tilt, speed, angle, baseSpeed: speed,
+          trail: [], excited: false, excitedTimer: 0,
+          transitioning: false, transitionTarget: null, transitionProgress: 0,
+          displacedX: 0, displacedY: 0, springVX: 0, springVY: 0,
+        });
       }
 
       function removeOutermost() {
         if (electrons.length === 0) return;
-        electrons.pop();
+        const e = electrons.pop();
+        // Emit photons on removal
+        const pos = getElectronPos(e);
+        for (let i = 0; i < 6; i++) {
+          emitPhoton(pos.x, pos.y, BLUE_WHITE);
+        }
       }
 
       // Start with 3 electrons
       for (let i = 0; i < 3; i++) addElectron(i);
+
+      // Init sub-particles for nucleus
+      for (let i = 0; i < 8; i++) {
+        subParticles.push({
+          angle: (i / 8) * Math.PI * 2,
+          radius: 4 + Math.random() * 3,
+          speed: 1.5 + Math.random(),
+          type: i % 2 === 0 ? 'proton' : 'neutron',
+          size: 2 + Math.random() * 1.5,
+        });
+      }
 
       // Init floating symbols
       for (let i = 0; i < 12; i++) {
@@ -1853,26 +1890,58 @@
       }
 
       canvas.addEventListener('mouseenter', () => { isHovering = true; });
-      canvas.addEventListener('mouseleave', () => { isHovering = false; mouseX = -1000; mouseY = -1000; });
+      canvas.addEventListener('mouseleave', () => {
+        isHovering = false;
+        isDragging = false;
+        mouseX = -1000;
+        mouseY = -1000;
+        nucleusHovered = false;
+      });
       canvas.addEventListener('mousemove', (e) => {
         const p = getPos(e);
         mouseX = p.x;
         mouseY = p.y;
+
+        // Check nucleus hover
+        const cx = W / 2, cy = H / 2;
+        const distToNucleus = Math.sqrt((p.x - cx) ** 2 + (p.y - cy) ** 2);
+        nucleusHovered = distToNucleus < 25;
       });
-      canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        isHovering = true;
+
+      canvas.addEventListener('mousedown', (e) => {
         const p = getPos(e);
+        isDragging = true;
+        dragStartX = p.x;
+        dragStartY = p.y;
         mouseX = p.x;
         mouseY = p.y;
-      }, { passive: false });
-      canvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        const p = getPos(e);
-        mouseX = p.x;
-        mouseY = p.y;
-      }, { passive: false });
-      canvas.addEventListener('touchend', () => { isHovering = false; mouseX = -1000; mouseY = -1000; });
+
+        // Shockwave
+        shockwaves.push({ x: p.x, y: p.y, radius: 0, alpha: 0.7, speed: 4 });
+
+        // Check if clicking near an electron for shell transition
+        const nearElectron = findNearElectron(p.x, p.y, 40);
+        if (nearElectron && nearElectron.shell < MAX_SHELLS - 1) {
+          exciteElectron(nearElectron);
+        }
+      });
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          const p = getPos(e);
+          mouseX = p.x;
+          mouseY = p.y;
+        }
+      });
+
+      canvas.addEventListener('mouseup', () => {
+        isDragging = false;
+        // Spring electrons back
+        for (const e of electrons) {
+          e.springVX = -e.displacedX * 0.15;
+          e.springVY = -e.displacedY * 0.15;
+        }
+      });
 
       canvas.addEventListener('click', (e) => {
         const now = Date.now();
@@ -1885,6 +1954,102 @@
         lastClick = now;
       });
 
+      // Touch events
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isHovering = true;
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+        isDragging = true;
+        dragStartX = p.x;
+        dragStartY = p.y;
+
+        // Long press detection
+        longPressTarget = findNearElectron(p.x, p.y, 50);
+        longPressTimer = setTimeout(() => {
+          if (longPressTarget && isDragging) {
+            exciteElectron(longPressTarget);
+          }
+          longPressTimer = null;
+        }, 600);
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const p = getPos(e);
+        mouseX = p.x;
+        mouseY = p.y;
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        isHovering = false;
+        isDragging = false;
+        mouseX = -1000;
+        mouseY = -1000;
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+        // Spring back
+        for (const el of electrons) {
+          el.springVX = -el.displacedX * 0.15;
+          el.springVY = -el.displacedY * 0.15;
+        }
+      }, { passive: false });
+
+      function findNearElectron(x, y, radius) {
+        let closest = null;
+        let closestDist = radius;
+        for (const e of electrons) {
+          const pos = getElectronPos(e);
+          const d = Math.sqrt((pos.x - x) ** 2 + (pos.y - y) ** 2);
+          if (d < closestDist) {
+            closestDist = d;
+            closest = e;
+          }
+        }
+        return closest;
+      }
+
+      function exciteElectron(electron) {
+        if (electron.transitioning) return;
+        const newShell = Math.min(electron.shell + 1, MAX_SHELLS - 1);
+        if (newShell === electron.shell) return;
+
+        electron.transitioning = true;
+        electron.transitionTarget = newShell;
+        electron.transitionProgress = 0;
+        electron.excited = true;
+        electron.excitedTimer = 2;
+
+        const pos = getElectronPos(electron);
+        // Flash of photons
+        for (let i = 0; i < 12; i++) {
+          emitPhoton(pos.x, pos.y, GOLD);
+        }
+      }
+
+      function emitPhoton(x, y, color) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1.5 + Math.random() * 3;
+        photons.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          alpha: 1,
+          color,
+          size: 1.5 + Math.random() * 2,
+          decay: 0.02 + Math.random() * 0.02,
+          trail: [],
+        });
+      }
+
       function drawNucleus(t) {
         const cx = W / 2;
         const cy = H / 2;
@@ -1892,47 +2057,108 @@
         const pulseBase = 8 + electronCount * 2;
         const pulse = pulseBase + Math.sin(t * 3) * 3 + Math.sin(t * 5.7) * 1.5;
 
-        // Outer glow
-        const glowGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse * 4);
-        glowGrad.addColorStop(0, `rgba(0, 255, 65, ${0.15 + electronCount * 0.03})`);
-        glowGrad.addColorStop(0.3, `rgba(0, 255, 65, ${0.06 + electronCount * 0.015})`);
-        glowGrad.addColorStop(1, 'transparent');
-        ctx.fillStyle = glowGrad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, pulse * 4, 0, Math.PI * 2);
-        ctx.fill();
+        // Update split progress
+        const targetSplit = nucleusHovered ? 1 : 0;
+        nucleusSplitProgress += (targetSplit - nucleusSplitProgress) * 0.1;
 
-        // Core
-        const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse);
-        coreGrad.addColorStop(0, WHITE);
-        coreGrad.addColorStop(0.3, BRIGHT);
-        coreGrad.addColorStop(0.7, GREEN);
-        coreGrad.addColorStop(1, 'rgba(0, 255, 65, 0.3)');
-        ctx.fillStyle = coreGrad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, pulse, 0, Math.PI * 2);
-        ctx.fill();
+        if (nucleusSplitProgress > 0.01) {
+          // Draw split sub-particles
+          const splitRadius = nucleusSplitProgress * 18;
+          for (const sp of subParticles) {
+            sp.angle += sp.speed * 0.016;
+            const sx = cx + Math.cos(sp.angle) * splitRadius;
+            const sy = cy + Math.sin(sp.angle) * splitRadius;
 
-        // Inner bright spot
-        ctx.fillStyle = WHITE;
-        ctx.globalAlpha = 0.7 + Math.sin(t * 4) * 0.3;
-        ctx.beginPath();
-        ctx.arc(cx, cy, pulse * 0.3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
+            const grad = ctx.createRadialGradient(sx, sy, 0, sx, sy, sp.size * 2.5);
+            if (sp.type === 'proton') {
+              grad.addColorStop(0, `rgba(255, 100, 100, ${0.8 * nucleusSplitProgress})`);
+              grad.addColorStop(0.5, `rgba(255, 60, 60, ${0.3 * nucleusSplitProgress})`);
+            } else {
+              grad.addColorStop(0, `rgba(100, 150, 255, ${0.8 * nucleusSplitProgress})`);
+              grad.addColorStop(0.5, `rgba(60, 100, 255, ${0.3 * nucleusSplitProgress})`);
+            }
+            grad.addColorStop(1, 'transparent');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(sx, sy, sp.size * 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = sp.type === 'proton' ? '#ff8888' : '#88aaff';
+            ctx.globalAlpha = nucleusSplitProgress;
+            ctx.beginPath();
+            ctx.arc(sx, sy, sp.size * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+
+          // Faint core still visible
+          ctx.globalAlpha = 1 - nucleusSplitProgress;
+          const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse);
+          coreGrad.addColorStop(0, WHITE);
+          coreGrad.addColorStop(0.5, BRIGHT);
+          coreGrad.addColorStop(1, 'rgba(0, 255, 65, 0.3)');
+          ctx.fillStyle = coreGrad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, pulse, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        } else {
+          // Normal nucleus
+          const glowGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse * 4);
+          glowGrad.addColorStop(0, `rgba(0, 255, 65, ${0.15 + electronCount * 0.03})`);
+          glowGrad.addColorStop(0.3, `rgba(0, 255, 65, ${0.06 + electronCount * 0.015})`);
+          glowGrad.addColorStop(1, 'transparent');
+          ctx.fillStyle = glowGrad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, pulse * 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse);
+          coreGrad.addColorStop(0, WHITE);
+          coreGrad.addColorStop(0.3, BRIGHT);
+          coreGrad.addColorStop(0.7, GREEN);
+          coreGrad.addColorStop(1, 'rgba(0, 255, 65, 0.3)');
+          ctx.fillStyle = coreGrad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, pulse, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = WHITE;
+          ctx.globalAlpha = 0.7 + Math.sin(t * 4) * 0.3;
+          ctx.beginPath();
+          ctx.arc(cx, cy, pulse * 0.3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
       }
 
       function drawOrbitPath(electron, t) {
         const cx = W / 2;
         const cy = H / 2;
+
+        // Probability cloud (faint ellipse)
         ctx.save();
         ctx.translate(cx, cy);
         ctx.rotate(electron.tilt);
+
+        // Cloud layers
+        const cloudAlpha = 0.03 + Math.sin(t * 1.5 + electron.shell) * 0.015;
+        for (let layer = 3; layer >= 0; layer--) {
+          const scale = 1 + layer * 0.15;
+          const a = cloudAlpha * (1 - layer * 0.2);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, electron.rx * scale, electron.ry * scale, 0, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0, 255, 65, ${a})`;
+          ctx.fill();
+        }
+
+        // Orbit line
         ctx.beginPath();
         ctx.ellipse(0, 0, electron.rx, electron.ry, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(0, 255, 65, ${0.06 + (isHovering ? 0.04 : 0)})`;
+        ctx.strokeStyle = `rgba(0, 255, 65, ${0.08 + (isHovering ? 0.04 : 0)})`;
         ctx.lineWidth = 0.8;
         ctx.stroke();
+
         ctx.restore();
       }
 
@@ -1944,50 +2170,120 @@
         const cosT = Math.cos(electron.tilt);
         const sinT = Math.sin(electron.tilt);
         return {
-          x: cx + x * cosT - y * sinT,
-          y: cy + x * sinT + y * cosT,
+          x: cx + x * cosT - y * sinT + electron.displacedX,
+          y: cy + x * sinT + y * cosT + electron.displacedY,
         };
       }
 
       function drawElectron(electron, t) {
-        const pos = getElectronPos(electron);
+        let pos = getElectronPos(electron);
+
+        // Mouse proximity check
         const distToMouse = Math.sqrt((pos.x - mouseX) ** 2 + (pos.y - mouseY) ** 2);
         const isNearMouse = distToMouse < 80;
-        const speedBoost = isNearMouse ? 2.5 : 1;
-        const glowSize = isNearMouse ? 8 : 4;
-        const glowAlpha = isNearMouse ? 0.9 : 0.6;
 
+        // Drag attraction
+        if (isDragging) {
+          const dx = mouseX - pos.x;
+          const dy = mouseY - pos.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > 1) {
+            const force = Math.min(8, 200 / (dist + 10));
+            electron.displacedX += dx / dist * force * 0.3;
+            electron.displacedY += dy / dist * force * 0.3;
+          }
+        }
+
+        // Spring back
+        electron.displacedX += electron.springVX;
+        electron.displacedY += electron.springVY;
+        electron.springVX *= 0.9;
+        electron.springVY *= 0.9;
+        // Damping
+        electron.displacedX *= 0.95;
+        electron.displacedY *= 0.95;
+
+        // Shell transition
+        if (electron.transitioning) {
+          electron.transitionProgress += 0.03;
+          if (electron.transitionProgress >= 1) {
+            electron.transitioning = false;
+            electron.shell = electron.transitionTarget;
+            electron.rx = 50 + electron.shell * 28;
+            electron.ry = 20 + electron.shell * 10;
+            electron.transitionTarget = null;
+          }
+        }
+
+        // Excitation timer
+        if (electron.excited) {
+          electron.excitedTimer -= 0.016;
+          if (electron.excitedTimer <= 0) {
+            electron.excited = false;
+          }
+        }
+
+        // Speed boost near mouse
+        const speedBoost = isNearMouse ? 2.5 : 1;
         electron.angle += electron.baseSpeed * speedBoost * 0.016;
 
+        // Recompute pos after displacement
+        pos = getElectronPos(electron);
+
+        // Photon emission when excited or near mouse
+        if ((electron.excited || isNearMouse) && Math.random() < 0.15) {
+          emitPhoton(pos.x, pos.y, electron.excited ? GOLD : BLUE_WHITE);
+        }
+
         // Trail
-        electron.trail.push({ x: pos.x, y: pos.y, alpha: glowAlpha });
+        electron.trail.push({ x: pos.x, y: pos.y });
         if (electron.trail.length > 25) electron.trail.shift();
 
         // Draw trail
         for (let i = 0; i < electron.trail.length; i++) {
           const tp = electron.trail[i];
           const progress = i / electron.trail.length;
-          ctx.fillStyle = `rgba(0, 255, 65, ${progress * 0.25 * tp.alpha})`;
+          const trailColor = electron.excited ? GOLD : BLUE_WHITE;
+          ctx.fillStyle = electron.excited
+            ? `rgba(255, 215, 0, ${progress * 0.2})`
+            : `rgba(200, 224, 255, ${progress * 0.2})`;
           ctx.beginPath();
-          ctx.arc(tp.x, tp.y, 1.5 + progress * 1.5, 0, Math.PI * 2);
+          ctx.arc(tp.x, tp.y, 1 + progress * 2, 0, Math.PI * 2);
           ctx.fill();
         }
 
+        // Determine color
+        const coreColor = electron.excited ? GOLD : BLUE_WHITE;
+        const glowColor = electron.excited ? 'rgba(255, 215, 0,' : 'rgba(200, 224, 255,';
+        const glowSize = electron.excited ? 10 : (isNearMouse ? 8 : 4);
+
         // Electron glow
         const eGrad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, glowSize * 3);
-        eGrad.addColorStop(0, `rgba(200, 224, 255, ${glowAlpha})`);
-        eGrad.addColorStop(0.3, `rgba(0, 255, 65, ${glowAlpha * 0.5})`);
+        eGrad.addColorStop(0, `${glowColor} 0.9)`);
+        eGrad.addColorStop(0.3, `${glowColor} 0.4)`);
         eGrad.addColorStop(1, 'transparent');
         ctx.fillStyle = eGrad;
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, glowSize * 3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Electron core
-        ctx.fillStyle = BLUE_WHITE;
+        // Core
+        ctx.fillStyle = coreColor;
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, glowSize * 0.5, 0, Math.PI * 2);
         ctx.fill();
+
+        // Transition flash
+        if (electron.transitioning) {
+          const flashAlpha = Math.sin(electron.transitionProgress * Math.PI) * 0.6;
+          const flashGrad = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, 30);
+          flashGrad.addColorStop(0, `rgba(255, 215, 0, ${flashAlpha})`);
+          flashGrad.addColorStop(1, 'transparent');
+          ctx.fillStyle = flashGrad;
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, 30, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
 
       function drawFloatingSymbols(t) {
@@ -2013,6 +2309,117 @@
         }
       }
 
+      function drawShockwaves() {
+        for (let i = shockwaves.length - 1; i >= 0; i--) {
+          const sw = shockwaves[i];
+          sw.radius += sw.speed;
+          sw.alpha -= 0.008;
+          if (sw.alpha <= 0) { shockwaves.splice(i, 1); continue; }
+
+          ctx.beginPath();
+          ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0, 255, 65, ${sw.alpha})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Inner ring
+          if (sw.radius > 15) {
+            ctx.beginPath();
+            ctx.arc(sw.x, sw.y, sw.radius * 0.65, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(180, 255, 180, ${sw.alpha * 0.5})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+
+          // Illuminate orbit paths the wave crosses
+          for (const e of electrons) {
+            const distFromCenter = Math.sqrt((sw.x - W / 2) ** 2 + (sw.y - H / 2) ** 2);
+            if (Math.abs(sw.radius - distFromCenter) < 30) {
+              ctx.save();
+              ctx.translate(W / 2, H / 2);
+              ctx.rotate(e.tilt);
+              ctx.beginPath();
+              ctx.ellipse(0, 0, e.rx, e.ry, 0, 0, Math.PI * 2);
+              ctx.strokeStyle = `rgba(0, 255, 65, ${sw.alpha * 0.4})`;
+              ctx.lineWidth = 2;
+              ctx.stroke();
+              ctx.restore();
+            }
+          }
+        }
+      }
+
+      function drawPhotons() {
+        for (let i = photons.length - 1; i >= 0; i--) {
+          const p = photons[i];
+          p.trail.push({ x: p.x, y: p.y });
+          if (p.trail.length > 6) p.trail.shift();
+
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.97;
+          p.vy *= 0.97;
+          p.alpha -= p.decay;
+
+          if (p.alpha <= 0) { photons.splice(i, 1); continue; }
+
+          // Draw trail
+          for (let j = 0; j < p.trail.length; j++) {
+            const tp = p.trail[j];
+            const progress = j / p.trail.length;
+            ctx.fillStyle = p.color === GOLD
+              ? `rgba(255, 215, 0, ${progress * p.alpha * 0.4})`
+              : `rgba(200, 224, 255, ${progress * p.alpha * 0.4})`;
+            ctx.beginPath();
+            ctx.arc(tp.x, tp.y, p.size * progress * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // Photon core
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.alpha;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      function drawEnergyReadout() {
+        totalEnergy = electrons.length * 13.6;
+        excitedCount = electrons.filter(e => e.excited).length;
+        if (excitedCount > 0) {
+          totalEnergy += excitedCount * 10.2;
+        }
+
+        const text = `E = ${totalEnergy.toFixed(1)} eV`;
+        const subText = excitedCount > 0 ? ` [${excitedCount} excited]` : '';
+
+        ctx.font = 'bold 11px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Background
+        const textWidth = ctx.measureText(text + subText).width;
+        const bgX = W / 2 - textWidth / 2 - 8;
+        const bgY = H - 24;
+        const bgW = textWidth + 16;
+        const bgH = 20;
+
+        ctx.fillStyle = 'rgba(0, 8, 4, 0.85)';
+        ctx.fillRect(bgX, bgY, bgW, bgH);
+        ctx.strokeStyle = excitedCount > 0 ? 'rgba(255, 215, 0, 0.3)' : 'rgba(0, 255, 65, 0.2)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(bgX, bgY, bgW, bgH);
+
+        // Text
+        ctx.fillStyle = excitedCount > 0 ? GOLD : GREEN;
+        ctx.shadowColor = excitedCount > 0 ? GOLD : GREEN;
+        ctx.shadowBlur = excitedCount > 0 ? 8 : 4;
+        ctx.fillText(text + subText, W / 2, H - 14);
+        ctx.shadowBlur = 0;
+      }
+
       function frame(timestamp) {
         const dt = Math.min((timestamp - (frame.lastTime || timestamp)) / 1000, 0.05);
         frame.lastTime = timestamp;
@@ -2031,6 +2438,10 @@
         for (const electron of electrons) {
           drawElectron(electron, time);
         }
+
+        drawShockwaves();
+        drawPhotons();
+        drawEnergyReadout();
 
         requestAnimationFrame(frame);
       }
