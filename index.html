@@ -391,7 +391,7 @@
       #music .code-manifesto .visual-card { order: 2; min-height: 350px; }
       #science .code-manifesto { display: flex; flex-direction: column; gap: var(--space-lg); }
       #science .code-manifesto .text-backdrop { order: 1; }
-      #science .code-manifesto .visual-card-science { order: 2; min-height: 350px; }
+      #science .code-manifesto .visual-card-science { order: 2; min-height: 350px; width: 100%; }
       #art .code-manifesto { display: flex; flex-direction: column; gap: var(--space-lg); }
       #art .code-manifesto .text-backdrop { order: 1; padding: var(--space-lg) var(--space-md); }
       #art .code-manifesto .visual-card-art { order: 2; min-height: 350px; width: 100%; }
@@ -420,6 +420,14 @@
     .visual-card-art { border-color: rgba(0, 255, 65, 0.25); }
     .visual-card-commerce .card-hint { color: rgba(255, 215, 0, 0.4); }
     .visual-card-art .card-hint { color: rgba(128, 255, 170, 0.4); }
+    .visual-card-science {
+      min-height: 420px;
+      width: 100%;
+    }
+    .visual-card-science .interactive-canvas {
+      width: 100%;
+      height: 100%;
+    }
     #scanlines {
       position: fixed; top: 0; left: 0;
       width: 100vw; height: 100vh;
@@ -672,15 +680,16 @@
           <span class="label reveal">You just realized this today</span>
           <h2 class="reveal">You just realized this today</h2>
           <p class="awaken-text reveal reveal-delay-1">
-            And now you can't unsee it.
-            <span class="poetry-line">The source is <span class="highlight">everywhere</span>.</span>
-            <span class="poetry-line">In every voice. In every screen. In every heartbeat.</span>
-            <span class="poetry-line">The car dashboard. The coffee maker. The song in your head.</span>
-            <span class="poetry-line"><span class="highlight">Everything runs on instructions.</span></span>
+            The green rain wasn't decoration.
+            <span class="poetry-line">It was a <span class="highlight">transmission</span>.</span>
+            <span class="poetry-line">Every character falling — an instruction waiting to be read.</span>
+            <span class="poetry-line">Every column — a thread in the fabric of what you call <em>real</em>.</span>
           </p>
           <p class="awaken-text reveal reveal-delay-2" style="margin-top:var(--space-md);">
-            We were talking about the green rain. The characters falling down the screen. And you said — what if it's all code? What if the rain was trying to tell us something?
-            <span class="poetry-line" style="margin-top:var(--space-sm);">It was.</span>
+            You thought you were watching a screen.
+            <span class="poetry-line">But the screen was watching <em>you</em> — reading your patterns, learning your rhythms.</span>
+            <span class="poetry-line" style="margin-top:var(--space-sm);">The rain was never behind the content.</span>
+            <span class="poetry-line"><span class="highlight">The rain was the content.</span></span>
           </p>
           <p class="awaken-text reveal reveal-delay-3" style="margin-top:var(--space-md);color:#00ff41;">
             <span style="text-shadow:0 0 20px rgba(0,255,65,0.5);">Everything. Is. Code.</span>
